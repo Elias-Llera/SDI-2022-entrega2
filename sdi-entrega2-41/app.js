@@ -3,6 +3,8 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
+require('dotenv').config();
+
 
 let app = express();
 
@@ -17,9 +19,18 @@ app.set('clave','abcdefg');
 app.set('crypto', crypto);
 
 // Cliente mongo
+console.log(process.env)
 const { MongoClient } = require("mongodb");
-const url = '';
+const url = process.env.mongoDBUrl;
 app.set('connectionStrings', url);
+
+let expressSession = require('express-session');
+app.use(expressSession({
+  secret: 'abcdefg',
+  resave: true,
+  saveUninitialized: true
+}));
+
 
 // Repositorios
 let usersRepository = require("./repositories/usersRepository.js");
@@ -36,6 +47,7 @@ let indexRouter = require('./routes/index');
 require("./routes/users.js")(app, usersRepository);
 require("./routes/posts.js")(app, postsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository)
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
