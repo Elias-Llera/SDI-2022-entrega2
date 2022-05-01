@@ -1,0 +1,34 @@
+{% extends "layout.twig" %}
+{% block title %} Tienda – uoMusic {% endblock %}
+{% block main_container %}
+
+    <h2>Publicaciones</h2>
+
+    <div class="row">
+        <!-- http://librosweb.es/libro/bootstrap_3/capitulo_2/tipos_de_rejillas.html -->
+        <!-- Inicio del Bloque canción -->
+        {% for post in posts %}
+            <div class="card" style="width: 18rem;">
+                    <h3 class="card-title">{{ post.title }}</h3>
+                    <h4 class="card-subtitle mb-2 text-muted">{{ post.author }} - {{ post.date }}</h4>
+                    <p class="card-text" class="text-right">{{ post.content }} €</p>
+            </div>
+        {% endfor %}
+        <!-- Fin del Bloque canción -->
+    </div>
+
+    <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->
+    <div class="row text-center">
+        <ul class="pagination">
+            {% for page in pages %}
+                <li class="page-item" id="pi-{{ page }}">
+                    <a class="page-link" href="/shop/?page={{ page }}"> {{ page }}</a>
+                </li>
+            {% endfor %}
+            <script>
+                $("#pi-" + "{{ currentPage }}").addClass("active");
+            </script>
+        </ul>
+    </div>
+
+{% endblock %}
