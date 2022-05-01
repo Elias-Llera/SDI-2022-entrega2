@@ -48,13 +48,10 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
     async function checkCanSeePostsFrom(user, registeredUser){
         if(user === registeredUser)
             return true;
-        let filter = {state: "ACCEPTED"};
+        let filter = f=>{return f.state==="ACCEPTED" && (f.sender===registeredUser || f.receiver===registeredUser)};
         friendshipsRepository.getFriendships(filter, {})
             .then(friendships => {
-                // ESTA CONDICIÓN TIENE QUE IR EN EL FILTER
-                return friendships.filter(f =>
-                    f.sender === registeredUser || f.receiver === registeredUser)
-                    .length > 0;
+                return friendships.length > 0;
             })
             .catch( () => {
                 return false
