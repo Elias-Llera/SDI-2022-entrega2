@@ -45,7 +45,7 @@ let indexRouter = require('./routes/index');
 
 // Rutas app
 require("./routes/users.js")(app, usersRepository);
-require("./routes/posts.js")(app, postsRepository);
+require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository)
 
 
