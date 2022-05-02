@@ -4,13 +4,15 @@
 
     <h2>Publicaciones</h2>
 
-    <!-- Listado de publicaciones -->
+    <!-- Listado de usuarios -->
     <div class="row">
-        {% for post in posts %}
-            <div class="card" style="width: 18rem;">
-                    <h3 class="card-title">{{ post.title }}</h3>
-                    <h4 class="card-subtitle mb-2 text-muted">{{ post.author }} - {{ post.date }}</h4>
-                    <p class="card-text" class="text-right">{{ post.content }} €</p>
+        {% for user in user %}
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+                <div style="width:200px">
+                    <div>{{ user.name }} </div>
+                    <div>{{ user.surname }} </div>
+                    <div>{{ user.email }}</div>
+                </div>
             </div>
         {% endfor %}
     </div>
@@ -20,7 +22,7 @@
         <ul class="pagination">
             {% for page in pages %}
                 <li class="page-item" id="pi-{{ page }}">
-                    <a class="page-link" href="/posts/{{ userId }}/?page={{ page }}"> {{ page }}</a>
+                    <a class="page-link" href="/users/?page={{ page }}"> {{ page }}</a>
                 </li>
             {% endfor %}
             <script>

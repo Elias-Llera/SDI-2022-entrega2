@@ -24,7 +24,7 @@ module.exports = {
         try {
             const limit = 4;
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
             const friendshipsCollectionCount = await friendshipsCollection.count();
@@ -39,7 +39,7 @@ module.exports = {
     findFriendship: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
             return await friendshipsCollection.findOne(filter, options);
@@ -51,7 +51,7 @@ module.exports = {
     insertFriendship: async function (friendship) {
         try{
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
             const result = await friendshipsCollection.insertOne(friendship);
@@ -64,7 +64,7 @@ module.exports = {
     deleteFriendship: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
             return await friendshipsCollection.deleteOne(filter, options);

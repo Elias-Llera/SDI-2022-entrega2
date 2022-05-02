@@ -2,8 +2,8 @@ const {ObjectId} = require("mongodb");
 
 module.exports = function (app, postsRepository, friendshipsRepository) {
 
-    app.get("/posts/:userId", function(req, res){
-        let filter = { author: ObjectId(req.params.id)};
+    app.get("/posts/:userId", function(req, res) {
+        let filter = { author: ObjectId(req.params.userId)};
         let options = {};
 
         let page = parseInt(req.query.page);
@@ -11,9 +11,9 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
             page = 1;
         }
 
-        checkCanSeePostsFrom(ObjectId(req.params.id), req.session.user)
+        checkCanSeePostsFrom(ObjectId(req.params.userId), req.session.user)
             .then( canSee => {
-                if(canSee){
+                if(canSee) {
                     postsRepository.getPostsPg(filter, options, page)
                         .then( result =>{
                             // Cálculos de paginación
@@ -29,6 +29,7 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
                             }
                             let response = {
                                 posts: result.posts,
+                                userID: req.params.userId,
                                 pages: pages,
                                 currentPage: page
                             }
