@@ -9,7 +9,9 @@
         {% for user in user %}
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
                 <div style="width:200px">
-                    <div>{{ user.name }} </div>
+                    <a href="\posts\{{ user._id }}">
+                        <div>{{ user.name }} </div>
+                    </a>
                     <div>{{ user.surname }} </div>
                     <div>{{ user.email }}</div>
                 </div>

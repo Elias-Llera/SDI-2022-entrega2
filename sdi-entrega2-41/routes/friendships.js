@@ -1,4 +1,3 @@
-const {ObjectId} = require("mongodb");
 module.exports = function (app, friendshipsRepository, usersRepository) {
 
     app.get("/friendships/friends", function (req, res){
@@ -38,9 +37,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
     });
 
     app.get("/friendships/invitations", function (req, res){
-        let registeredUser = req.session.user;
-        let friendshipsFilter = f=>{return f.state==="PENDING" && (f.sender===registeredUser || f.receiver===registeredUser)};
-
+        let friendshipsFilter = { state:"PENDING", receiver:req.session.user };
         friendshipsRepository.getFriendshipsPg(friendshipsFilter, {})
             .then( result => {
                 // Cálculos de paginación
@@ -54,7 +51,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         pages.push(i);
                     }
                 }
-                let usersFilter = u=>{ return result.contains(u._id)};
+                let usersFilter = u => { return result.reduce(f=>f.sender).contains(u._id.toString())};
                 usersRepository.getUsersPg(usersFilter, {})
                     .then( result => {
                         let response = {
@@ -74,13 +71,34 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
     });
 
     app.post("/friendships/send/:userId", function(req, res){
-
+        canSendInviteTo(req.params.userId, req.session.user)
+            .then(canSend=>{
+                if(canSend){
+                    let friendship = {
+                        sender: req.session.user,
+                        receiver: req.params.userId,
+                        state: "PENDING"
+                    }
+                    friendshipsRepository.insertFriendship(friendship)
+                        .then( () => {
+                            res.redirect("/users")
+                        })
+                        .catch( () =>
+                            res.send("You cannot send an invite to this user.")
+                        );
+                } else {
+                    res.send("You cannot send an invite to this user.")
+                }
+            })
+            .catch(error =>
+                res.send("Error: " + error)
+            );
     });
 
-    async function canSendInvite(user, registeredUser){
-        if(user === registeredUser)
+    async function canSendInviteTo(userId, registeredUserId){
+        if(userId === registeredUserId)
             return false;
-        let filter = f=>{return f.sender===registeredUser || f.receiver===registeredUser};
+        let filter = f=>{return f.sender===registeredUserId || f.receiver===registeredUserId};
         friendshipsRepository.getFriendships(filter, {})
             .then(friendships => {
                 return friendships.length > 0;
@@ -90,8 +108,21 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             });
     }
 
-    app.patch("/friendships/accept/:friendshipId", function(req, res){
-
+    app.patch("/friendships/accept/:senderId", function(req, res) {
+        let filter = { sender:req.params.senderId, state: "PENDING" };
+        friendshipsRepository.findFriendship(filter, {})
+            .then( friendship => {
+                friendship.state = "ACCEPTED";
+                friendshipsRepository.updateFriendship(friendship, filter, {})
+                    .then( () => {
+                        res.redirect("/friendships/friends")})
+                    .catch(error =>
+                        res.send("Error: " + error)
+                    );
+            })
+            .catch(error =>
+                res.send("Error: " + error)
+            );
     });
 
 }

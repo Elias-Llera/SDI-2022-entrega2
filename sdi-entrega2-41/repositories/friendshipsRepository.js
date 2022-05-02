@@ -73,4 +73,16 @@ module.exports = {
         }
     },
 
+    updateFriendship: async function(newFriendship, filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'friendships';
+            const friendshipCollection = database.collection(collectionName);
+            return await friendshipCollection.updateOne(filter, {$set: newFriendship}, options);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
 };
