@@ -4,6 +4,11 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
         let registeredUser = req.session.user;
         let friendshipsFilter = f=>{return f.state==="ACCEPTED" && (f.sender===registeredUser || f.receiver===registeredUser)};
 
+        let page = parseInt(req.query.page);
+        if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
+            page = 1;
+        }
+
         friendshipsRepository.getFriendshipsPg(friendshipsFilter, {})
             .then( result => {
                 // Cálculos de paginación
@@ -38,6 +43,12 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
 
     app.get("/friendships/invitations", function (req, res){
         let friendshipsFilter = { state:"PENDING", receiver:req.session.user };
+
+        let page = parseInt(req.query.page);
+        if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
+            page = 1;
+        }
+
         friendshipsRepository.getFriendshipsPg(friendshipsFilter, {})
             .then( result => {
                 // Cálculos de paginación

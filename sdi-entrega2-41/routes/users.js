@@ -6,6 +6,11 @@ module.exports = function (app, usersRepository) {
         let filter = u=>{return u.rol !== "ADMIN" && u._id !== ObjectId(req.session.user)};
         let options = {};
 
+        let page = parseInt(req.query.page);
+        if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
+            page = 1;
+        }
+
         usersRepository.getUsersPg(filter, options)
             .then( result => {
                 // Cálculos de paginación
@@ -53,7 +58,7 @@ module.exports = function (app, usersRepository) {
                 req.session.user = user.email;
                 res.redirect("/users/list");
             }
-        }).catch(error => {
+        }).catch( () => {
             req.session.user = null;
             res.redirect("/users/login" +
                 "?message=Se ha producido un error al buscar el usuario"+
