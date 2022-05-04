@@ -45,8 +45,8 @@ let indexRouter = require('./routes/index');
 
 // Rutas app
 require("./routes/users.js")(app, usersRepository);
-require("./routes/posts.js")(app, postsRepository);
-require("./routes/friendships.js")(app, friendshipsRepository)
+require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
+require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
 
 
 // view engine setup
