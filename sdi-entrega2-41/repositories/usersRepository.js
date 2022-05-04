@@ -8,6 +8,12 @@ module.exports = {
         this.app = app;
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     findUser: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -21,7 +27,14 @@ module.exports = {
         }
     },
 
-    getUsersPg: async function (filter, options){
+    /**
+     *
+     * @param filter
+     * @param options
+     * @param page
+     * @returns {Promise<{total: *, users: *}>}
+     */
+    getUsersPg: async function (filter, options, page){
         try {
             const limit = 5;
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));

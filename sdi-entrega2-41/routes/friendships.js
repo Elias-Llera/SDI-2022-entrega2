@@ -1,5 +1,8 @@
 module.exports = function (app, friendshipsRepository, usersRepository) {
 
+    /**
+     *
+     */
     app.get("/friendships/friends", function (req, res){
         let registeredUser = req.session.user;
         let friendshipsFilter = f=>{return f.state==="ACCEPTED" && (f.sender===registeredUser || f.receiver===registeredUser)};
@@ -9,7 +12,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             page = 1;
         }
 
-        friendshipsRepository.getFriendshipsPg(friendshipsFilter, {})
+        friendshipsRepository.getFriendshipsPg(friendshipsFilter, {}, page)
             .then( result => {
                 // Cálculos de paginación
                 let lastPage = result.total / 5;
@@ -23,7 +26,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                     }
                 }
                 let usersFilter = u=>{ return result.contains(u._id)};
-                usersRepository.getUsersPg(usersFilter, {})
+                usersRepository.getUsersPg(usersFilter, {}, page)
                     .then( result => {
                         let response = {
                             users: result.users,
@@ -41,6 +44,9 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             );
     });
 
+    /**
+     *
+     */
     app.get("/friendships/invitations", function (req, res){
         let friendshipsFilter = { state:"PENDING", receiver:req.session.user };
 
@@ -49,7 +55,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             page = 1;
         }
 
-        friendshipsRepository.getFriendshipsPg(friendshipsFilter, {})
+        friendshipsRepository.getFriendshipsPg(friendshipsFilter, {}, page)
             .then( result => {
                 // Cálculos de paginación
                 let lastPage = result.total / 5;
@@ -63,7 +69,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                     }
                 }
                 let usersFilter = u => { return result.reduce(f=>f.sender).contains(u._id.toString())};
-                usersRepository.getUsersPg(usersFilter, {})
+                usersRepository.getUsersPg(usersFilter, {}, page)
                     .then( result => {
                         let response = {
                             users: result.users,
@@ -81,6 +87,9 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             );
     });
 
+    /**
+     *
+     */
     app.post("/friendships/send/:userId", function(req, res){
         canSendInviteTo(req.params.userId, req.session.user)
             .then(canSend=>{
@@ -106,6 +115,12 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             );
     });
 
+    /**
+     *
+     * @param userId
+     * @param registeredUserId
+     * @returns {Promise<boolean>}
+     */
     async function canSendInviteTo(userId, registeredUserId){
         if(userId === registeredUserId)
             return false;
@@ -119,6 +134,9 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             });
     }
 
+    /**
+     *
+     */
     app.patch("/friendships/accept/:senderId", function(req, res) {
         let filter = { sender:req.params.senderId, state: "PENDING" };
         friendshipsRepository.findFriendship(filter, {})

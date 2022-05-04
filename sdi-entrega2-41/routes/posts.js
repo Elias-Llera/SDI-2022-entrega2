@@ -2,6 +2,9 @@ const {ObjectId} = require("mongodb");
 
 module.exports = function (app, postsRepository, friendshipsRepository) {
 
+    /**
+     *
+     */
     app.get("/posts/:userId", function(req, res) {
         let filter = { author: ObjectId(req.params.userId)};
         let options = {};
@@ -46,6 +49,12 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
         });
     });
 
+    /**
+     *
+     * @param user
+     * @param registeredUser
+     * @returns {Promise<boolean>}
+     */
     async function checkCanSeePostsFrom(user, registeredUser){
         if(user === registeredUser)
             return true;
@@ -59,10 +68,16 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
             });
     }
 
+    /**
+     *
+     */
     app.get("/posts/add", function(req, res){
         res.render("posts/add.twig");
     });
 
+    /**
+     *
+     */
     app.post("/posts/add", function(req, res){
         let post = {
             title: req.body.title,
@@ -89,6 +104,11 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
             );
     });
 
+    /**
+     *
+     * @param post
+     * @returns {Promise<*[]>}
+     */
     async function validatePost(post){
         let errors = [];
         if(post.title === 'undefined' || post.title.toString().trim().length === 0)

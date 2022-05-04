@@ -59,7 +59,7 @@ app.use(logger('dev'));
 // Uso de json para las respuestas
 app.use(express.json());
 
-// Codificacion de urls
+// Codificación de urls
 app.use(express.urlencoded({ extended: false }));
 
 // Uso de cookies
