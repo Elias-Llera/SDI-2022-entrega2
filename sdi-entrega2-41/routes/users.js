@@ -61,4 +61,60 @@ module.exports = function (app, usersRepository) {
         })
     });
 
+
+    app.get('/users/signup', function (req, res) {
+        res.render("signup.twig");
+    })
+
+    app.post('/users/signup', async function (req, res) {
+        let securePassword = app.get("crypto").createHmac('sha256', app.get('clave'))
+            .update(req.body.password).digest('hex');
+        let user = {
+            email: req.body.email,
+            password: securePassword
+        }
+        await validateUser(user).then(result =>{
+
+
+            if(result.length > 0) {
+                let url = ""
+                for(error in result){
+                    url += "&message=" + result[error] + "&messageType=alert-danger "
+                }
+                res.redirect("/users/signup?" + url);
+                return
+            }
+            usersRepository.insertUser(user).then(userId => {
+                res.redirect("/users/login?message=Nuevo usuario registrado&messageType=alert-info");
+            }).catch(error => {
+                res.redirect("/users/signup?message=Se ha producido un error al registrar usuario&messageType=alert-danger");
+            });
+        });
+    })
+
+     async function validateUser(user){
+        let errors = [];
+        if(user.email == null || user.email == ""){
+            errors.push("El email es obligatorio");
+        }
+        if(user.password == null || user.password == ""){
+            errors.push("El password es obligatorio");
+        }
+        //check that the email format is correct
+        let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if(!emailRegex.test(user.email)){
+            errors.push("El email no tiene un formato correcto");
+        }
+        let userfound = await usersRepository.findUser({email: user.email});
+
+            if(userfound != null){
+                errors.push("El email ya existe");
+            }
+            return errors;
+
+
+    }
+
+
+
 }
