@@ -68,7 +68,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         pages.push(i);
                     }
                 }
-                let usersFilter = u => { return result.reduce(f=>f.sender).contains(u._id.toString())};
+                let usersFilter = u => { return result.reduce(f=>f.sender).contains(u._id.toString()) };
                 usersRepository.getUsersPg(usersFilter, {}, page)
                     .then( result => {
                         let response = {
@@ -88,7 +88,8 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
     });
 
     /**
-     *
+     * @param userID es un parametro de URL.
+     * @param paametroEnBody es un parametro del cuerpo. tipo string y contiene blablabla
      */
     app.post("/friendships/send/:userId", function(req, res){
         canSendInviteTo(req.params.userId, req.session.user)
@@ -125,13 +126,8 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
         if(userId === registeredUserId)
             return false;
         let filter = f=>{return f.sender===registeredUserId || f.receiver===registeredUserId};
-        friendshipsRepository.getFriendships(filter, {})
-            .then(friendships => {
-                return friendships.length > 0;
-            })
-            .catch( () => {
-                return false
-            });
+        let friendships = await friendshipsRepository.getFriendships(filter, {});
+        return friendships.length > 0;
     }
 
     /**

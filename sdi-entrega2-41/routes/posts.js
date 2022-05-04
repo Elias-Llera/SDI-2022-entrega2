@@ -14,39 +14,35 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
             page = 1;
         }
 
-        checkCanSeePostsFrom(ObjectId(req.params.userId), req.session.user)
-            .then( canSee => {
-                if(canSee) {
-                    postsRepository.getPostsPg(filter, options, page)
-                        .then( result =>{
-                            // Cálculos de paginación
-                            let lastPage = result.total / 4;
-                            if (result.total % 4 > 0) { // Decimales
-                                lastPage = lastPage + 1;
-                            }
-                            let pages = []; // Indices de páginas a mostrar
-                            for (let i = page - 2; i <= page + 2; i++) {
-                                if (i > 0 && i <= lastPage) {
-                                    pages.push(i);
-                                }
-                            }
-                            let response = {
-                                posts: result.posts,
-                                userID: req.params.userId,
-                                pages: pages,
-                                currentPage: page
-                            }
-                            res.render("posts/list.twig", response);
-                        })
-                        .catch( error => {
-                            res.send("Error: " + error);
-                        })
-                } else {
-                    res.send("Acceso no autorizado");
-                }
-            }).catch( error => {
-                res.send("Error: " + error);
-        });
+        let canSee = checkCanSeePostsFrom(ObjectId(req.params.userId), req.session.user)
+        if(canSee) {
+            postsRepository.getPostsPg(filter, options, page)
+                .then( result =>{
+                    // Cálculos de paginación
+                    let lastPage = result.total / 4;
+                    if (result.total % 4 > 0) { // Decimales
+                        lastPage = lastPage + 1;
+                    }
+                    let pages = []; // Indices de páginas a mostrar
+                    for (let i = page - 2; i <= page + 2; i++) {
+                        if (i > 0 && i <= lastPage) {
+                            pages.push(i);
+                        }
+                    }
+                    let response = {
+                        posts: result.posts,
+                        userID: req.params.userId,
+                        pages: pages,
+                        currentPage: page
+                    }
+                    res.render("posts/list.twig", response);
+                })
+                .catch( error => {
+                    res.send("Error: " + error);
+                })
+        } else {
+            res.send("Acceso no autorizado");
+        }
     });
 
     /**
@@ -59,13 +55,8 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
         if(user === registeredUser)
             return true;
         let filter = f=>{return f.state==="ACCEPTED" && (f.sender===registeredUser || f.receiver===registeredUser)};
-        friendshipsRepository.getFriendships(filter, {})
-            .then(friendships => {
-                return friendships.length > 0;
-            })
-            .catch( () => {
-                return false
-            });
+        let friendships = await friendshipsRepository.getFriendships(filter, {})
+        return friendships.length > 0;
     }
 
     /**
@@ -85,31 +76,26 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
             author: req.session.user,
             date: new Date(Date.now()).toLocaleDateString()
         };
-        validatePost(post)
-            .then(errors =>{
-                if(errors.length === 0){
-                    postsRepository.insertPost(post)
-                        .then(
-                            res.redirect("/posts/" + req.session.user)
-                        )
-                        .catch(error =>
-                            res.send("Error: " + error)
-                        );
-                } else {
-                    res.send("Errores en el formulario: " + errors)
-                }
-            })
-            .catch(error =>
-                res.send("Error: " + error)
-            );
+        let errors = validatePost(post);
+        if(errors.length === 0){
+            postsRepository.insertPost(post)
+                .then(
+                    res.redirect("/posts/" + req.session.user)
+                )
+                .catch(error =>
+                    res.send("Error: " + error)
+                );
+        } else {
+            res.send("Errores en el formulario: " + errors)
+        }
     });
 
     /**
      *
      * @param post
-     * @returns {Promise<*[]>}
+     * @returns {*[]}
      */
-    async function validatePost(post){
+    function validatePost(post){
         let errors = [];
         if(post.title === 'undefined' || post.title.toString().trim().length === 0)
             errors.push("Error al insertar la publicación: título vacío.")
