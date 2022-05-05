@@ -24,7 +24,7 @@ module.exports = {
         try {
             const limit = 4;
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
             const postsCollectionCount = await postsCollection.count();
@@ -39,7 +39,7 @@ module.exports = {
     findPost: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
             return await postsCollection.findOne(filter, options);
@@ -51,7 +51,7 @@ module.exports = {
     insertPost: async function (post) {
         try{
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
             const result = await postsCollection.insertOne(post);
@@ -64,7 +64,7 @@ module.exports = {
     deletePost: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
             return await postsCollection.deleteOne(filter, options);
