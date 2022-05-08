@@ -8,6 +8,10 @@ require('dotenv').config();
 
 let app = express();
 
+//Modulo para generar token de autenticacion
+let jwt = require('jsonwebtoken');
+app.set('jwt', jwt);
+
 // Módulo para leer cuerpo de peticiones posts
 let bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -47,6 +51,8 @@ let indexRouter = require('./routes/index');
 require("./routes/users.js")(app, usersRepository);
 require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
+
+require("./api/routes/UsersAPIv1.0.js")(app, usersRepository);
 
 
 // view engine setup
