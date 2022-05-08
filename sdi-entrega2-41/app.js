@@ -25,7 +25,7 @@ app.set('crypto', crypto);
 // Cliente mongo
 console.log(process.env)
 const { MongoClient } = require("mongodb");
-const url = process.env.mongoDBUrl;
+const url = "mongodb+srv://admin:sdi@cluster0.hz8vy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 app.set('connectionStrings', url);
 
 let expressSession = require('express-session');
