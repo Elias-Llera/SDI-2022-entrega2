@@ -21,7 +21,7 @@ module.exports = {
         }
     },
 
-    getUsersPg: async function (filter, options){
+    getUsersPg: async function (filter, options, page){
         try {
             const limit = 5;
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -36,6 +36,7 @@ module.exports = {
             throw (error);
         }
     },
+
     insertUser: async function (user) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
