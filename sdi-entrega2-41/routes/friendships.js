@@ -5,7 +5,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      */
     app.get("/friendships/friends", function (req, res){
         let registeredUser = req.session.user;
-        let friendshipsFilter = f=>{return f.state==="ACCEPTED" && (f.sender===registeredUser || f.receiver===registeredUser)};
+        let friendshipsFilter = {state: "ACCEPTED", $or:[{sender: registeredUser}, {receiver: registeredUser}] };
 
         let page = parseInt(req.query.page);
         if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
@@ -25,7 +25,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         pages.push(i);
                     }
                 }
-                let usersFilter = u=>{ return result.contains(u._id)};
+                let usersFilter = { _id: { $in: result }};
                 usersRepository.getUsersPg(usersFilter, {}, page)
                     .then( result => {
                         let response = {
@@ -68,7 +68,8 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         pages.push(i);
                     }
                 }
-                let usersFilter = u => { return result.reduce(f=>f.sender).contains(u._id.toString()) };
+                let senders = result.map( f=> f.sender);
+                let usersFilter = { _id: { $in: senders }};
                 usersRepository.getUsersPg(usersFilter, {}, page)
                     .then( result => {
                         let response = {
@@ -125,7 +126,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
     async function canSendInviteTo(userId, registeredUserId){
         if(userId === registeredUserId)
             return false;
-        let filter = f=>{return f.sender===registeredUserId || f.receiver===registeredUserId};
+        let filter = {$OR: [{sender:registeredUserId}, {receiver: registeredUserId}]};
         let friendships = await friendshipsRepository.getFriendships(filter, {});
         return friendships.length > 0;
     }

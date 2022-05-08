@@ -6,7 +6,7 @@ module.exports = function (app, usersRepository) {
      *
      */
     app.get("/users", function (req, res) {
-        let filter = u=>{return u.rol !== "ADMIN" && u._id !== ObjectId(req.session.user)};
+        let filter = {rol:"ADMIN",  _id: { $ne: ObjectId(req.session.user)} };
         let options = {};
 
         let page = parseInt(req.query.page);
@@ -14,7 +14,7 @@ module.exports = function (app, usersRepository) {
             page = 1;
         }
 
-        usersRepository.getUsersPg(filter, options)
+        usersRepository.getUsersPg(filter, options, page)
             .then( result => {
                 // Cálculos de paginación
                 let lastPage = result.total / 5;
@@ -98,9 +98,9 @@ module.exports = function (app, usersRepository) {
                 res.redirect("/users/signup?" + url);
                 return
             }
-            usersRepository.insertUser(user).then(userId => {
+            usersRepository.insertUser(user).then( () => {
                 res.redirect("/users/login?message=Nuevo usuario registrado&messageType=alert-info");
-            }).catch(error => {
+            }).catch( () => {
                 res.redirect("/users/signup?message=Se ha producido un error al registrar usuario&messageType=alert-danger");
             });
         });
@@ -108,10 +108,10 @@ module.exports = function (app, usersRepository) {
 
      async function validateUser(user){
         let errors = [];
-        if(user.email == null || user.email == ""){
+        if(user.email == null || user.email === ""){
             errors.push("El email es obligatorio");
         }
-        if(user.password == null || user.password == ""){
+        if(user.password == null || user.password === ""){
             errors.push("El password es obligatorio");
         }
         //check that the email format is correct
@@ -119,9 +119,9 @@ module.exports = function (app, usersRepository) {
         if(!emailRegex.test(user.email)){
             errors.push("El email no tiene un formato correcto");
         }
-        let userfound = await usersRepository.findUser({email: user.email});
+        let userFound = await usersRepository.findUser({email: user.email}, {});
 
-            if(userfound != null){
+            if(userFound != null){
                 errors.push("El email ya existe");
             }
             return errors;
