@@ -36,6 +36,7 @@ module.exports = {
             throw (error);
         }
     },
+
     insertUser: async function (user) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
