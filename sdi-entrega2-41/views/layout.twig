@@ -22,17 +22,14 @@
       </div>
       <div class="collapse navbar-collapse" id="myNavbar">
         {%  if session.user != undefined %}
-        <ul class="nav navbar-nav">
-          <li  class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="usersDropdown"
-               role="button" data-toggle="dropdown" aria-haspopup="true"
-               aria-expanded="false">Usuarios
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="/users/list">Listar Usuarios</a>
-            </div>
-          </li>
-        </ul>
+          <ul class="nav navbar-nav">
+          <li><a class="dropdown-item" href="/users/list">Listar Usuarios</a></li>
+            {% if session.user != null and session.user == "admin@email.com" %}
+
+              <li><a class="dropdown-item" href="/users/admin/list">Borrar Usuarios</a></li>
+
+            {% endif %}
+          </ul>
         {% endif %}
         <ul class="nav navbar-nav navbar-right">
           <li><a href="/users/signup"><span class="glyphicon glyphicon-user"></span>Regístrate</a></li>
