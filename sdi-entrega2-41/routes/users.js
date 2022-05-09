@@ -130,9 +130,12 @@ module.exports = function (app, usersRepository) {
             errors.push("El email ya existe");
         }
         return errors;
-
-
     }
+
+    app.get('/users/logout', function (req, res) {
+        req.session.user = null;
+        res.redirect("/users/login?message=Usuario desconectado correctamente&messageType=alert-info");
+    });
 
 
 }
