@@ -39,11 +39,21 @@
                         <td scope="row">{{ user.name }}</td>
                         <td scope="row">{{ user.surname }}</td>
                         <td scope="row">{{ user.email }}</td>
+						{% if ""==""%}
+                        <td scope="row">
+                            <form class="form-horizontal" method="post" action="/friendships/send/{{ user.email }}" >
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary">Enviar invitación</button>
+                                </div>
+                            </form>
+                        </td>
+                    {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+
 
     <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->
     <div class="row text-center">

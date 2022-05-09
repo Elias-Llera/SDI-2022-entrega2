@@ -1,8 +1,8 @@
-const {ObjectId} = require("mongodb");
-
 module.exports = function (app, usersRepository) {
 
-
+    /**
+     *
+     */
     app.get("/users/list", function (req, res) {
         let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
         let options = {sort: {email: 1}};
@@ -45,10 +45,11 @@ module.exports = function (app, usersRepository) {
                 }
                 res.render("users/list.twig", response);
             })
-            .catch(error =>
+            .catch( error =>
                 res.send("Error: " + error)
             );
     });
+
 
     app.get("/users/admin/list", function (req, res) {
         let filter = {};
@@ -110,12 +111,18 @@ module.exports = function (app, usersRepository) {
         });
     }
 
+    /**
+     *
+     */
     app.get('/users/login', function (req, res) {
         res.render("login.twig");
     });
 
-    app.post('/users/login', function (req, res) {
-        let securePassword = app.get("crypto").createHmac('sha256', app.get('clave'))
+    /**
+     *
+     */
+    app.post('/users/login',function (req,res) {
+        let securePassword = app.get("crypto").createHmac('sha256',app.get('clave'))
             .update(req.body.password).digest('hex');
         let filter = {
             email: req.body.email,
@@ -132,7 +139,7 @@ module.exports = function (app, usersRepository) {
                 req.session.user = user.email;
                 res.redirect("/users/list");
             }
-        }).catch(error => {
+        }).catch( () => {
             req.session.user = null;
             res.redirect("/users/login" +
                 "?message=Se ha producido un error al buscar el usuario" +
@@ -151,6 +158,8 @@ module.exports = function (app, usersRepository) {
         let user = {
             email: req.body.email,
             password: securePassword,
+            name: req.body.name,
+            surname: req.body.surname,
             rol: "STANDARD"
         }
         await validateUser(user).then(result => {
@@ -164,9 +173,9 @@ module.exports = function (app, usersRepository) {
                 res.redirect("/users/signup?" + url);
                 return
             }
-            usersRepository.insertUser(user).then(userId => {
+            usersRepository.insertUser(user).then( () => {
                 res.redirect("/users/login?message=Nuevo usuario registrado&messageType=alert-info");
-            }).catch(error => {
+            }).catch( () => {
                 res.redirect("/users/signup?message=Se ha producido un error al registrar usuario&messageType=alert-danger");
             });
         });
@@ -180,14 +189,20 @@ module.exports = function (app, usersRepository) {
         if (user.password == null || user.password == "") {
             errors.push("El password es obligatorio");
         }
+        if (user.name == null || user.name == "") {
+            errors.push("El nombre es obligatorio");
+        }
+        if (user.surname == null || user.surname == "") {
+            errors.push("El apellido es obligatorio");
+        }
         //check that the email format is correct
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRegex.test(user.email)) {
             errors.push("El email no tiene un formato correcto");
         }
-        let userfound = await usersRepository.findUser({email: user.email});
+        let userFound = await usersRepository.findUser({email: user.email}, {});
 
-        if (userfound != null) {
+        if (userFound != null) {
             errors.push("El email ya existe");
         }
         return errors;
@@ -197,6 +212,7 @@ module.exports = function (app, usersRepository) {
         req.session.user = null;
         res.redirect("/users/login?message=Usuario desconectado correctamente&messageType=alert-info");
     });
+
 
 
 }

@@ -8,6 +8,12 @@ module.exports = {
         this.app = app;
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     findUser: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -21,6 +27,31 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
+    getUsers: async function (filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'users';
+            const usersCollection = database.collection(collectionName);
+            return await usersCollection.find(filter, options).toArray();
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    /**
+     *
+     * @param filter
+     * @param options
+     * @param page
+     * @returns {Promise<{total: *, users: *}>}
+     */
     getUsersPg: async function (filter, options, page){
         try {
             const limit = 5;
@@ -51,7 +82,11 @@ module.exports = {
         }
     },
 
-
+    /**
+     *
+     * @param user
+     * @returns {Promise<any>}
+     */
     insertUser: async function (user) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));

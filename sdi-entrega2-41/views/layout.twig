@@ -9,17 +9,21 @@
   </head>
 
   <body>
+
   <!-- Barra de Navegación superior -->
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
       <div class="navbar-header">
+
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
+
         <img src="/images/logo.png" alt="logo"/>
       </div>
+
       <div class="collapse navbar-collapse" id="myNavbar">
         {%  if session.user != undefined %}
           <ul class="nav navbar-nav">
@@ -30,15 +34,52 @@
 
             {% endif %}
           </ul>
+        <ul class="nav navbar-nav">
+          <li  class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="usersDropdown"
+               role="button" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">Usuarios
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="/users/list">Listar Usuarios</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="postsDropdown"
+               role="button" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">Publicaciones
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="/friendships/invitations">Mis publicaciones</a>
+              <br>
+              <a class="dropdown-item" href="/friendships/friends">Nueva publicación</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="friendshipsDropdown"
+               role="button" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">Amistades
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="/friendships/invitations">Peticiones de amistad</a>
+              <br>
+              <a class="dropdown-item" href="/friendships/friends">Amigos</a>
+            </div>
+          </li>
+        </ul>
         {% endif %}
+
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/users/signup"><span class="glyphicon glyphicon-user"></span>Regístrate</a></li>
           {%  if session.user != undefined %}
             <li><a href="/users/logout"><span class="glyphicon glyphicon-log-in"></span>Cerrar sesión</a></li>
           {% else %}
+            <li><a href="/users/signup"><span class="glyphicon glyphicon-user"></span>Regístrate</a></li>
             <li><a href="/users/login"><span class="glyphicon glyphicon-log-in"></span> Identifícate</a></li>
           {% endif %}
         </ul>
+
       </div>
     </div>
   </nav>
