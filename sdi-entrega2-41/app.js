@@ -49,8 +49,12 @@ messagesRepository.init(app, MongoClient);
 // Ruta index
 let indexRouter = require('./routes/index');
 let userSessionRouter = require('./routes/userSessionRouter');
+let adminSessionRouter = require('./routes/adminSessionRouter');
 
 app.use("/users/list", userSessionRouter);
+app.use("/users/admin/list", adminSessionRouter);
+app.use("/users/delete", adminSessionRouter);
+
 
 
 

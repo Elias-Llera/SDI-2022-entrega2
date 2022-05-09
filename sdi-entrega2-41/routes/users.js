@@ -7,9 +7,6 @@ module.exports = function (app, usersRepository) {
         let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
         let options = {sort: {email: 1}};
 
-        console.log(req);
-        console.log(req.query.search);
-
         //For filtering
         if (req.query.search != null && typeof (req.query.search) != "undefined" && req.query.search != "") {
             filter = {
@@ -52,6 +49,67 @@ module.exports = function (app, usersRepository) {
                 res.send("Error: " + error)
             );
     });
+
+
+    app.get("/users/admin/list", function (req, res) {
+        let filter = {};
+        let options = {sort: {email: 1}};
+
+        usersRepository.getUsers(filter, options)
+            .then(result => {
+
+                let response = {
+                    users: result.users,
+                    session: req.session,
+                    search: req.query.search
+                }
+                res.render("users/admin/list.twig", response);
+            })
+            .catch(error =>
+                res.send("Error: " + error)
+            );
+    });
+
+    app.get('/users/delete', function (req, res) {
+        var list = [];
+
+        if (req.query.deleteList != null && req.query.deleteList != undefined) {
+            if (!Array.isArray(req.query.deleteList)) {
+                list[0] = req.query.deleteList;
+            } else {
+                list = req.query.deleteList;
+            }
+
+            for (const listElement of list) {
+                deleteUser(listElement, res);
+            }
+        }
+
+        usersRepository.getUsers({}, { sort: {email: 1}})
+            .then(result => {
+
+                let response = {
+                    users: result.users,
+                    session: req.session,
+                    search: req.query.search
+                }
+                res.redirect("/users/admin/list");
+            })
+            .catch(error =>
+                res.send("Error: " + error)
+            );
+    });
+
+    function deleteUser(userId, res) {
+        usersRepository.deleteUser({_id: ObjectId(userId)}, {}).then(result => {
+            if (result == null || result.deletedCount == 0) {
+                res.write("No se ha podido eliminar el registro");
+            }
+            res.end();
+        }).catch(error => {
+            res.send("Se ha producido un error al intentar eliminar la canción: " + error)
+        });
+    }
 
     /**
      *

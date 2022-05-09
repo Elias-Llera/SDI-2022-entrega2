@@ -68,6 +68,20 @@ module.exports = {
         }
     },
 
+    getUsers: async function (filter, options){
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'users';
+            const c = database.collection(collectionName);
+            const usersCollection = await c.find(filter, options);
+            const users = await usersCollection.toArray();
+            return {users: users };
+        } catch (error) {
+            throw (error);
+        }
+    },
+
     /**
      *
      * @param user
@@ -81,6 +95,19 @@ module.exports = {
             const usersCollection = database.collection(collectionName);
             const result = await usersCollection.insertOne(user);
             return result.insertedId;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    deleteUser: async function (filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'users';
+            const usersCollection = database.collection(collectionName);
+            const result = await usersCollection.deleteOne(filter, options);
+            return result;
         } catch (error) {
             throw (error);
         }
