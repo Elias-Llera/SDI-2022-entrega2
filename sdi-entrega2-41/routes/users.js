@@ -2,9 +2,18 @@ const {ObjectId} = require("mongodb");
 
 module.exports = function (app, usersRepository) {
 
+
     app.get("/users/list", function (req, res) {
-        let filter = { rol : { $not: { $eq: "ADMIN"}}, email: { $not: { $eq : req.session.user }}};
-        let options = {};
+        let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
+        let options = {sort: {email: 1}};
+
+        //For filtering
+        if (req.query.search != null && typeof (req.query.search) != "undefined" && req.query.search != "") {
+            filter = {
+                rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}},
+                email: {$regex: ".*" + req.query.search + ".*"}
+            };
+        }
 
         //For pagination
         let page = parseInt(req.query.page); // Es String !!!
@@ -26,6 +35,7 @@ module.exports = function (app, usersRepository) {
                         pages.push(i);
                     }
                 }
+
                 let response = {
                     users: result.users,
                     pages: pages,
@@ -37,9 +47,7 @@ module.exports = function (app, usersRepository) {
             .catch(error =>
                 res.send("Error: " + error)
             );
-    })
-
-    ;
+    });
 
     app.get('/users/login', function (req, res) {
         res.render("login.twig");
