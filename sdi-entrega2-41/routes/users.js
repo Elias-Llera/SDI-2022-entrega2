@@ -1,5 +1,3 @@
-const {ObjectId} = require("mongodb");
-
 module.exports = function (app, usersRepository) {
 
     /**
@@ -132,14 +130,12 @@ module.exports = function (app, usersRepository) {
         if (!emailRegex.test(user.email)) {
             errors.push("El email no tiene un formato correcto");
         }
-        let userfound = await usersRepository.findUser({email: user.email});
+        let userFound = await usersRepository.findUser({email: user.email}, {});
 
-        if (userfound != null) {
+        if (userFound != null) {
             errors.push("El email ya existe");
         }
         return errors;
-
-
     }
 
 

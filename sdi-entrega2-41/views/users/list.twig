@@ -39,7 +39,15 @@
                 <td scope="row" >{{ user.name }}</td>
                 <td scope="row" >{{ user.surname }}</td>
                 <td scope="row" >{{ user.email }}</td>
-                <td scope="row"><a href="/user/{{ user._id }}">detalles</a></td>
+                    {% if ""==""%}
+                        <td scope="row">
+                            <form class="form-horizontal" method="post" action="/friendships/send/{{ user.email }}" >
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary">Enviar invitación</button>
+                                </div>
+                            </form>
+                        </td>
+                    {% endif %}
             </tr>
             {% endfor %}
             </tbody>
@@ -51,7 +59,7 @@
         <ul class="pagination">
             {% for page in pages %}
                 <li class="page-item" id="pi-{{ page }}">
-                    <a class="page-link" href="/users/list?page={{ page }}"> {{ page }}</a>
+                    <a class="page-link" href="/users/list?page={{ page }}" > {{ page }}</a>
                 </li>
             {% endfor %}
             <script>

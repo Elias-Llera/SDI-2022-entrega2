@@ -25,11 +25,14 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         pages.push(i);
                     }
                 }
-                let usersFilter = { _id: { $in: result }};
+                let senders = result.friendships.map( f=> f.sender).filter( s => s !== req.session.user);
+                let receivers = result.friendships.map( f=> f.receiver).filter( r => r !== req.session.user);
+                let friends = senders.concat(receivers);
+                let usersFilter = { email: { $in: friends }};
                 usersRepository.getUsersPg(usersFilter, {}, page)
-                    .then( result => {
+                    .then( users => {
                         let response = {
-                            users: result.users,
+                            friends: users.users,
                             pages: pages,
                             currentPage: page
                         }
@@ -68,12 +71,12 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         pages.push(i);
                     }
                 }
-                let senders = result.map( f=> f.sender);
-                let usersFilter = { _id: { $in: senders }};
+                let senders = result.friendships.map( f=> f.sender);
+                let usersFilter = { email: { $in: senders }};
                 usersRepository.getUsersPg(usersFilter, {}, page)
                     .then( result => {
                         let response = {
-                            users: result.users,
+                            invitations: result.users,
                             pages: pages,
                             currentPage: page
                         }
@@ -92,18 +95,18 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      * @param userID es un parametro de URL.
      * @param paametroEnBody es un parametro del cuerpo. tipo string y contiene blablabla
      */
-    app.post("/friendships/send/:userId", function(req, res){
-        canSendInviteTo(req.params.userId, req.session.user)
+    app.post("/friendships/send/:userEmail", function(req, res){
+        canSendInviteTo(req.params.userEmail, req.session.user)
             .then(canSend=>{
                 if(canSend){
                     let friendship = {
                         sender: req.session.user,
-                        receiver: req.params.userId,
+                        receiver: req.params.userEmail,
                         state: "PENDING"
                     }
                     friendshipsRepository.insertFriendship(friendship)
                         .then( () => {
-                            res.redirect("/users")
+                            res.redirect("/users/list")
                         })
                         .catch( () =>
                             res.send("You cannot send an invite to this user.")
@@ -123,19 +126,19 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      * @param registeredUserId
      * @returns {Promise<boolean>}
      */
-    async function canSendInviteTo(userId, registeredUserId){
-        if(userId === registeredUserId)
+    async function canSendInviteTo(userEmail, registeredUser){
+        if(userEmail === registeredUser)
             return false;
-        let filter = {$OR: [{sender:registeredUserId}, {receiver: registeredUserId}]};
+        let filter = {$or: [{sender:registeredUser, receiver: userEmail}, {sender:userEmail, receiver: registeredUser}]};
         let friendships = await friendshipsRepository.getFriendships(filter, {});
-        return friendships.length > 0;
+        return friendships.length === 0;
     }
 
     /**
      *
      */
-    app.patch("/friendships/accept/:senderId", function(req, res) {
-        let filter = { sender:req.params.senderId, state: "PENDING" };
+    app.post("/friendships/accept/:userEmail", function(req, res) {
+        let filter = { sender:req.params.userEmail, state: "PENDING" };
         friendshipsRepository.findFriendship(filter, {})
             .then( friendship => {
                 friendship.state = "ACCEPTED";

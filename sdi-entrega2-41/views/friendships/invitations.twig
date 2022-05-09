@@ -1,22 +1,22 @@
 {% extends "layout.twig" %}
 {% block title %} Tienda – uoMusic {% endblock %}
-{% block main_container %}
+{% block body %}
 
-    <h2>Publicaciones</h2>
+    <h2>Invitaciones</h2>
 
     <!-- Listado de invitaciones -->
     <div class="row">
-        {% for user in user %}
+        {% for invitation in invitations %}
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
                 <div style="width:200px">
-                    <div>{{ user.name }} </div>
-                    <div>{{ user.surname }} </div>
-                    <div>{{ user.email }}</div>
-                    <a href="/friendships/accept/{{ user._id }}">
+                    <div>{{ invitation.name }} </div>
+                    <div>{{ invitation.surname }} </div>
+                    <div>{{ invitation.email }}</div>
+                    <form class="form-horizontal" method="post" action="/friendships/accept/{{ invitation.email }}" >
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary">Aceptar</button>
                         </div>
-                    </a>
+                    </form>
                 </div>
             </div>
         {% endfor %}
@@ -27,7 +27,7 @@
         <ul class="pagination">
             {% for page in pages %}
                 <li class="page-item" id="pi-{{ page }}">
-                    <a class="page-link" href="/users/?page={{ page }}"> {{ page }}</a>
+                    <a class="page-link" href="/friendships/invitations?page={{ page }}"> {{ page }}</a>
                 </li>
             {% endfor %}
             <script>

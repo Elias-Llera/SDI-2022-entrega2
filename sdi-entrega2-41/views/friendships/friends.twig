@@ -1,19 +1,20 @@
 {% extends "layout.twig" %}
 {% block title %} Tienda – uoMusic {% endblock %}
-{% block main_container %}
+{% block body %}
 
-    <h2>Publicaciones</h2>
+    <h2>Amigos</h2>
 
     <!-- Listado de usuarios -->
     <div class="row">
-        {% for user in user %}
+        {% for friend in friends %}
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
                 <div style="width:200px">
-                    <a href="\posts\{{ user._id }}">
-                        <div>{{ user.name }} </div>
+                    <div>{{ friend.name }} </div>
+                    <div>{{ friend.surname }} </div>
+                    <div>{{ friend.email }}</div>
+                    <a href="\posts\{{ friend.email }}">
+                        <div>Publicaciones</div>
                     </a>
-                    <div>{{ user.surname }} </div>
-                    <div>{{ user.email }}</div>
                 </div>
             </div>
         {% endfor %}
@@ -24,7 +25,7 @@
         <ul class="pagination">
             {% for page in pages %}
                 <li class="page-item" id="pi-{{ page }}">
-                    <a class="page-link" href="/users/?page={{ page }}"> {{ page }}</a>
+                    <a class="page-link" href="/friendships/friends?page={{ page }}"> {{ page }}</a>
                 </li>
             {% endfor %}
             <script>
