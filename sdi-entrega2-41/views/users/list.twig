@@ -51,7 +51,11 @@
         <ul class="pagination">
             {% for page in pages %}
                 <li class="page-item" id="pi-{{ page }}">
-                    <a class="page-link" href="/users/list?page={{ page }}"> {{ page }}</a>
+                    {%  if search != null and search != "" %}
+                        <a class="page-link" href="/users/list?page={{ page }}&search={{ search }}"> {{ page }}</a>
+                    {% else %}
+                        <a class="page-link" href="/users/list?page={{ page }}"> {{ page }}</a>
+                    {% endif %}
                 </li>
             {% endfor %}
             <script>
