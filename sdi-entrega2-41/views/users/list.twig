@@ -1,25 +1,49 @@
 {% extends "layout.twig" %}
 {% block title %} Tienda – uoMusic {% endblock %}
-{% block main_container %}
+{% block body %}
 
-    <h2>Publicaciones</h2>
+    <h2>Listado de usuarios</h2>
 
-    <!-- Listado de usuarios -->
     <div class="row">
-        {% for user in user %}
-            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-                <div style="width:200px">
-                    <div>{{ user.name }} </div>
-                    <div>{{ user.surname }} </div>
-                    <div>{{ user.email }}</div>
-                    <a href="/friendships/send/{{ user._id }}">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">Invitar</button>
-                        </div>
-                    </a>
+        <div id="custom-search-input ">
+            <form method="get" action="/users/list">
+                <div class="input-group col-xs-8 col-sm-6 col-md-4 col-lg-5 pull-right">
+                    <input id="search" type="text" class="search-query form-control"
+                           placeholder="Nombre, apellidos o email del usuario." name="search">
+                    <span class="input-group-btn">
+						<button class="btn" type="submit">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</span>
                 </div>
-            </div>
-        {% endfor %}
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover" id="tableUsers">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Surname</th>
+                <th scope="col">Email</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td scope="row" >{{ user.name }}</td>
+                <td scope="row" >{{ user.surname }}</td>
+                <td scope="row" >{{ user.email }}</td>
+                <td scope="row"><a href="/user/{{ user._id }}">detalles</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->
@@ -27,7 +51,7 @@
         <ul class="pagination">
             {% for page in pages %}
                 <li class="page-item" id="pi-{{ page }}">
-                    <a class="page-link" href="/users/?page={{ page }}"> {{ page }}</a>
+                    <a class="page-link" href="/users/list?page={{ page }}"> {{ page }}</a>
                 </li>
             {% endfor %}
             <script>
