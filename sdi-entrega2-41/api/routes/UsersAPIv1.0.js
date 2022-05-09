@@ -1,5 +1,4 @@
-module.exports = function (app,usersRepository) {
-
+module.exports = function (app, usersRepository, friendshipsRepository) {
     app.post('/api/v1.0/users/login', function (req, res) {
         if (req.body.email === undefined || req.body.email === null) {
             res.status(400);
@@ -20,8 +19,8 @@ module.exports = function (app,usersRepository) {
             }
             let options = {};
             usersRepository.findUser(filter, options).then(user => {
-                if (user == null) {
-                    res.status(401); //Unauthorized
+                if (user === null) {
+                    res.status(401); // Unauthorized
                     res.json({
                         message: "Usuario no autorizado",
                         authenticated: false
@@ -50,5 +49,30 @@ module.exports = function (app,usersRepository) {
                 authenticated: false
             })
         }
+    });
+
+    app.get("/api/v1.0/friends", function (req, res) {
+        let user = res.user;
+        let friendshipsFilter = {state: "ACCEPTED", $or:[{sender: user}, {receiver: user}] };
+
+        friendshipsRepository.getFriendships(friendshipsFilter, {}).then(friendships => {
+            let senders = friendships.map( f=> f.sender).filter( s => s !== user);
+            let receivers = friendships.map( f=> f.receiver).filter( r => r !== user);
+            let friends = senders.concat(receivers);
+
+            let usersFilter = { email: { $in: friends }};
+            usersRepository.getUsers(usersFilter, {})
+                .then( users => {
+                    res.status(200);
+                    res.send({friends: users});
+                })
+                .catch( error => {
+                    res.status(500);
+                    res.json({error: "Se ha producido un error al recuperar los amigos."})
+                });
+        }).catch(error => {
+            res.status(500);
+            res.json({ error: "Se ha producido un error al recuperar los amigos." })
+        });
     });
 };

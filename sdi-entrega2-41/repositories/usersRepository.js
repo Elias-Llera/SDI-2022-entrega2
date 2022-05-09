@@ -1,5 +1,4 @@
 module.exports = {
-
     mongoClient: null,
     app: null,
 
@@ -16,6 +15,18 @@ module.exports = {
             const usersCollection = database.collection(collectionName);
             const user = await usersCollection.findOne(filter, options);
             return user;
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    getUsers: async function (filter, options){
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'users';
+            const usersCollection = database.collection(collectionName);
+            return await usersCollection.find(filter, options).toArray();
         } catch (error) {
             throw (error);
         }
@@ -49,7 +60,4 @@ module.exports = {
             throw (error);
         }
     }
-
-
-
 };
