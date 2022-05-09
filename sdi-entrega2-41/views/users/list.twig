@@ -4,6 +4,22 @@
 
     <h2>Listado de usuarios</h2>
 
+    <div class="row">
+        <div id="custom-search-input ">
+            <form method="get" action="/users/list">
+                <div class="input-group col-xs-8 col-sm-6 col-md-4 col-lg-5 pull-right">
+                    <input id="search" type="text" class="search-query form-control"
+                           placeholder="Nombre, apellidos o email del usuario." name="search">
+                    <span class="input-group-btn">
+						<button class="btn" type="submit">
+							<span class="glyphicon glyphicon-search"></span>
+						</button>
+					</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover" id="tableUsers">
             <thead>
