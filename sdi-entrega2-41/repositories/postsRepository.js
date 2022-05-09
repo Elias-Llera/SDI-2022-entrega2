@@ -8,10 +8,16 @@ module.exports = {
         this.app = app;
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     getPosts: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
             return await postsCollection.find(filter, options).toArray();
@@ -20,6 +26,13 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @param page
+     * @returns {Promise<{total: *, posts: *}>}
+     */
     getPostsPg: async function (filter, options, page) {
         try {
             const limit = 4;
@@ -36,6 +49,12 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     findPost: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -48,6 +67,11 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param post
+     * @returns {Promise<any>}
+     */
     insertPost: async function (post) {
         try{
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -61,6 +85,12 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     deletePost: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));

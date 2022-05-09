@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 const {decode} = require("jsonwebtoken");
+module.exports = function (app,friendshipsRepository,messagesRepository) {
+    const {decode} = require("jsonwebtoken");
+
+=======
 module.exports = function (app,friendshipsRepository,messagesRepository) {
     const {decode} = require("jsonwebtoken");
 
