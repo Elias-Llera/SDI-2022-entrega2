@@ -94,6 +94,8 @@ module.exports = function (app, usersRepository) {
         let user = {
             email: req.body.email,
             password: securePassword,
+            name: req.body.name,
+            surname: req.body.surname,
             rol: "STANDARD"
         }
         await validateUser(user).then(result => {
@@ -122,6 +124,12 @@ module.exports = function (app, usersRepository) {
         }
         if (user.password == null || user.password == "") {
             errors.push("El password es obligatorio");
+        }
+        if (user.name == null || user.name == "") {
+            errors.push("El nombre es obligatorio");
+        }
+        if (user.surname == null || user.surname == "") {
+            errors.push("El apellido es obligatorio");
         }
         //check that the email format is correct
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
