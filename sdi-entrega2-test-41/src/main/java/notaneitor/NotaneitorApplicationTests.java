@@ -299,4 +299,98 @@ class NotaneitorApplicationTests {
 
     }
 
+    //[Prueba16] Hacer una búsqueda con el campo vacío y comprobar que se muestra la página que
+    //corresponde con el listado usuarios existentes en el sistema.
+    @Test
+    @Order(16)
+    public void PR16() {
+        //Nos logeamos con usuario estandar
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+        //Vamos a la vista /user/list
+        PO_PrivateView.clickSubMenuOption(driver, "userDropdown", "userList");
+
+        //Realizamos una busqueda con el campo vacio
+        PO_UserListView.executeSearch(driver, "");
+
+        //Presionamos el boton de ultima pagina
+        List<WebElement> lastPageBtn = SeleniumUtils.waitLoadElementsBy(driver, "text", "Última",
+                PO_View.getTimeout());
+        lastPageBtn.get(0).click();
+
+        //Comprobamos que la página es la 3
+        List<WebElement> pageNumbers = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
+                PO_View.getTimeout());
+        Assertions.assertEquals(4, pageNumbers.size());
+        Assertions.assertEquals("2", pageNumbers.get(1).getText());
+        Assertions.assertEquals("3", pageNumbers.get(2).getText());
+
+        //Y que hay 5 usuarios
+        List<WebElement> userList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr",
+                PO_View.getTimeout());
+        Assertions.assertEquals(4, userList.size());
+    }
+
+    //[Prueba17] Hacer una búsqueda escribiendo en el campo un texto que no exista y comprobar que se
+    //muestra la página que corresponde, con la lista de usuarios vacía.
+    @Test
+    @Order(17)
+    public void PR17() {
+        //Nos logeamos como administradores
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Vamos a la vista /user/list
+        PO_PrivateView.clickSubMenuOption(driver, "userDropdown", "userList");
+
+        //Realizamos una busqueda con un campo que no nos proporcione ningun resultado
+        PO_UserListView.executeSearch(driver, "wefmeifmoiwef");
+
+        //Comprobamos que la página es la 1
+        List<WebElement> pageNumbers = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
+                PO_View.getTimeout());
+        Assertions.assertEquals(3, pageNumbers.size());
+        Assertions.assertEquals("1", pageNumbers.get(1).getText());
+
+        //Y que hay 5 usuarios
+        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "free", "//tbody/tr");
+
+        //Comprobamos no esta visible este elemento
+        Assertions.assertEquals(true, notFound);
+    }
+
+
+    //[Prueba18] Hacer una búsqueda con un texto específico y comprobar que se muestra la página que
+    //corresponde, con la lista de usuarios en los que el texto especificado sea parte de su nombre, apellidos o de su email.
+    @Test
+    @Order(18)
+    public void PR18() {
+        //Nos logeamos como usuario
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Vamos a la vista /user/list
+        PO_PrivateView.clickSubMenuOption(driver, "userDropdown", "userList");
+
+        //Realizamos una busqueda con el campo "01"
+        String searchText = "01";
+        PO_UserListView.executeSearch(driver, searchText);
+
+        //Comprobamos que los resultados son los esperados
+        PO_UserListView.checkElementBy(driver, "text", "User010");
+        PO_UserListView.checkElementBy(driver, "text", "User011");
+        PO_UserListView.checkElementBy(driver, "text", "User012");
+        PO_UserListView.checkElementBy(driver, "text", "User013");
+        PO_UserListView.checkElementBy(driver, "text", "User014");
+
+        //Y que hay 5 usuarios
+        List<WebElement> userList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr",
+                PO_View.getTimeout());
+        Assertions.assertEquals(5, userList.size());
+
+        //Comprobamos que estamos en la página 1
+        List<WebElement> pageNumbers = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
+                PO_View.getTimeout());
+        Assertions.assertEquals(4, pageNumbers.size());
+        Assertions.assertEquals("1", pageNumbers.get(1).getText());
+        Assertions.assertEquals("2", pageNumbers.get(2).getText());
+    }
+
 }
