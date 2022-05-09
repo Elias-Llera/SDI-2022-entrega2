@@ -7,6 +7,9 @@ module.exports = function (app, usersRepository) {
         let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
         let options = {sort: {email: 1}};
 
+        console.log(req);
+        console.log(req.query.search);
+
         //For filtering
         if (req.query.search != null && typeof (req.query.search) != "undefined" && req.query.search != "") {
             filter = {
@@ -40,7 +43,8 @@ module.exports = function (app, usersRepository) {
                     users: result.users,
                     pages: pages,
                     currentPage: page,
-                    session: req.session
+                    session: req.session,
+                    search: req.query.search
                 }
                 res.render("users/list.twig", response);
             })
@@ -96,6 +100,8 @@ module.exports = function (app, usersRepository) {
         let user = {
             email: req.body.email,
             password: securePassword,
+            name: req.body.name,
+            surname: req.body.surname,
             rol: "STANDARD"
         }
         await validateUser(user).then(result => {
@@ -125,6 +131,12 @@ module.exports = function (app, usersRepository) {
         if (user.password == null || user.password == "") {
             errors.push("El password es obligatorio");
         }
+        if (user.name == null || user.name == "") {
+            errors.push("El nombre es obligatorio");
+        }
+        if (user.surname == null || user.surname == "") {
+            errors.push("El apellido es obligatorio");
+        }
         //check that the email format is correct
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRegex.test(user.email)) {
@@ -137,6 +149,11 @@ module.exports = function (app, usersRepository) {
         }
         return errors;
     }
+
+    app.get('/users/logout', function (req, res) {
+        req.session.user = null;
+        res.redirect("/users/login?message=Usuario desconectado correctamente&messageType=alert-info");
+    });
 
 
 

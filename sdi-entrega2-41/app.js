@@ -46,6 +46,9 @@ postsRepository.init(app, MongoClient);
 
 // Ruta index
 let indexRouter = require('./routes/index');
+let userSessionRouter = require('./routes/userSessionRouter');
+
+app.use("/users/list", userSessionRouter);
 
 // Rutas app
 require("./routes/users.js")(app, usersRepository);

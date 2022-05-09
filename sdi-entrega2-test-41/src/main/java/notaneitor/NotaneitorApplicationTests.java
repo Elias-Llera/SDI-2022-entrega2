@@ -213,6 +213,41 @@ class NotaneitorApplicationTests {
 //        PO_PrivateView.clickOption(driver, "logout", "text", loginText);
 //    }
 
+    //[Prueba9] Hacer clic en la opción de salir de sesión y comprobar que se redirige a la página de inicio de
+    //sesión (Login).
+    @Test
+    @Order(11)
+    public void PR09() {
+        //Iniciamos sesión
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+
+        //Comprobamos que hemos iniciado sesión correctamente
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "user.list.users", PO_Properties.getSPANISH());
+        String checkText = PO_HomeView.getP().getString("user.list.users", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Nos desconectamos
+        PO_HomeView.clickOption(driver, "logout", "class", "btn btn-primary");
+        //Comprobamos que se redirige a la página de inicio de sesión
+        result = PO_LoginView.checkElementByKey(driver, "nav.login.message", PO_Properties.getSPANISH() );
+        checkText = PO_HomeView.getP().getString("nav.login.message", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+    }
+
+    //[Prueba10] Comprobar que el botón cerrar sesión no está visible si el usuario no está autenticado
+    @Test
+    @Order(12)
+    public void PR10() {
+        //Vamos al formulario login
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Comprobamos la invisibilidad del botón logout
+        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "@href", "logout");
+
+        //Comprobamos que no está visible este elemento
+        Assertions.assertTrue(notFound);
+    }
+
     //P14. Loguearse como profesor y Agregar Nota A2.
     //P14. Esta prueba podría encapsularse mejor ...
     @Test
