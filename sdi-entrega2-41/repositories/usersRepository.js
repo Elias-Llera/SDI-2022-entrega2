@@ -31,6 +31,24 @@ module.exports = {
      *
      * @param filter
      * @param options
+     * @returns {Promise<*>}
+     */
+    getUsers: async function (filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'users';
+            const usersCollection = database.collection(collectionName);
+            return await usersCollection.find(filter, options).toArray();
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    /**
+     *
+     * @param filter
+     * @param options
      * @param page
      * @returns {Promise<{total: *, users: *}>}
      */

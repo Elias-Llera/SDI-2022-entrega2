@@ -17,7 +17,7 @@ module.exports = {
     getPosts: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
             return await postsCollection.find(filter, options).toArray();

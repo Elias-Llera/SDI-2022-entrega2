@@ -17,7 +17,7 @@ module.exports = {
     getFriendships: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
-            const database = client.db("social");
+            const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
             return await friendshipsCollection.find(filter, options).toArray();

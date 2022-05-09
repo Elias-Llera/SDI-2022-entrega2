@@ -29,10 +29,10 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                 let receivers = result.friendships.map( f=> f.receiver).filter( r => r !== req.session.user);
                 let friends = senders.concat(receivers);
                 let usersFilter = { email: { $in: friends }};
-                usersRepository.getUsersPg(usersFilter, {}, page)
+                usersRepository.getUsers(usersFilter, {})
                     .then( users => {
                         let response = {
-                            friends: users.users,
+                            friends: users,
                             pages: pages,
                             currentPage: page
                         }
@@ -73,10 +73,10 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                 }
                 let senders = result.friendships.map( f=> f.sender);
                 let usersFilter = { email: { $in: senders }};
-                usersRepository.getUsersPg(usersFilter, {}, page)
-                    .then( result => {
+                usersRepository.getUsers(usersFilter, {})
+                    .then( users => {
                         let response = {
-                            invitations: result.users,
+                            invitations: users,
                             pages: pages,
                             currentPage: page
                         }
