@@ -7,6 +7,9 @@ module.exports = function (app, usersRepository) {
         let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
         let options = {sort: {email: 1}};
 
+        console.log(req);
+        console.log(req.query.search);
+
         //For filtering
         if (req.query.search != null && typeof (req.query.search) != "undefined" && req.query.search != "") {
             filter = {
@@ -40,7 +43,8 @@ module.exports = function (app, usersRepository) {
                     users: result.users,
                     pages: pages,
                     currentPage: page,
-                    session: req.session
+                    session: req.session,
+                    search: req.query.search
                 }
                 res.render("users/list.twig", response);
             })
