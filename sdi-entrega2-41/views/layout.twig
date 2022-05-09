@@ -26,7 +26,7 @@
 
         <div class="collapse navbar-collapse" id="myNavbar">
             {% if session.user != undefined %}
-   
+
                 <ul class="nav navbar-nav">
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="#" id="usersDropdown"
@@ -35,6 +35,7 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="/users/list">Listar Usuarios</a>
+                            <br>
                             {% if session.user != null and session.user == "admin@email.com" %}
                                 <a class="dropdown-item" href="/users/admin/list">Borrar Usuarios</a>
                             {% endif %}
