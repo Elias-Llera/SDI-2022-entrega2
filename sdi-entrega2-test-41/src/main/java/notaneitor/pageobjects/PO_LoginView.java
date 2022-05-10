@@ -10,7 +10,7 @@ import java.util.List;
 public class PO_LoginView extends PO_NavView {
 
 	static public void fillLoginForm(WebDriver driver, String dnip, String passwordp) {
-		WebElement dni = driver.findElement(By.name("username"));
+		WebElement dni = driver.findElement(By.name("email"));
 		dni.click();
 		dni.clear();
 		dni.sendKeys(dnip);
@@ -22,6 +22,8 @@ public class PO_LoginView extends PO_NavView {
 		By boton = By.className("btn");
 		driver.findElement(boton).click();	
 	}
+
+
 
 
 	public static void login(WebDriver driver, String username, String passwordp) {
