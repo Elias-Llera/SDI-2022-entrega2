@@ -55,8 +55,8 @@ app.use("/users/list", userSessionRouter);
 app.use("/users/admin/list", adminSessionRouter);
 app.use("/users/delete", adminSessionRouter);
 
-
-
+const userTokenRouter = require('./routes/userTokenRouter');
+app.use("/api/v1.0/messages/read/:id", userTokenRouter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -84,7 +84,7 @@ require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
 
 require("./api/routes/UsersAPIv1.0.js")(app, usersRepository);
-require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
+require("./api/routes/MessagesAPIv1.0")(app, friendshipsRepository,messagesRepository);
 
 
 // Usar rutas index
