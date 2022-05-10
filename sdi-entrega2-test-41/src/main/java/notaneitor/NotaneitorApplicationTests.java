@@ -429,4 +429,46 @@ class NotaneitorApplicationTests {
         Assertions.assertEquals("2", pageNumbers.get(2).getText());
     }
 
+    //[Prueba21] Mostrar el listado de invitaciones de amistad recibidas.
+    // Comprobar con un listado que contenga varias invitaciones recibidas.
+    @Test
+    @Order(21)
+    public void PR21() {
+        //Iniciamos sesión como usuario estándar
+        PO_LoginView.login(driver, "user03@email.com", "user03");
+
+        //Vamos a la vista /friendInvitations/list
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "invitationsMenu");
+
+        //Comprobamos que estamos en la vista friend invitation list
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "friendInvitation.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("friendInvitation.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Comprobamos que hay solicitudes de amistad
+        List<WebElement> invList = SeleniumUtils.waitLoadElementsBy(driver, "free", "/h3", PO_View.getTimeout());
+        Assertions.assertTrue( invList.size() == 3 );
+    }
+
+    // [Prueba23] Mostrar el listado de amigos de un usuario.
+    // Comprobar que el listado contiene los amigos que deben ser
+    @Test
+    @Order(23)
+    public void  PR23(){
+        //Log in con user
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Ir a la página de listado de amigos
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+
+        //Comprobamos que estamos en la página de listado de amigos
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "friends.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("friends.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Comprobamos que nos salen todos los amigos del usuario
+        List<WebElement> friendList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
+        Assertions.assertTrue( friendList.size() == 2 );
+    }
+
 }
