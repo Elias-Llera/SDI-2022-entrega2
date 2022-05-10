@@ -45,8 +45,10 @@ module.exports = function (app, usersRepository) {
                 }
                 res.render("users/list.twig", response);
             })
-            .catch( error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Ha ocurrido un error al listar los usuarios." +
+                    "&messageType=alert-danger ")
             );
     });
 
@@ -65,8 +67,10 @@ module.exports = function (app, usersRepository) {
                 }
                 res.render("users/admin/list.twig", response);
             })
-            .catch(error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Ha ocurrido un error al listar los usuarios." +
+                    "&messageType=alert-danger ")
             );
     });
 
@@ -95,8 +99,10 @@ module.exports = function (app, usersRepository) {
                 }
                 res.redirect("/users/admin/list");
             })
-            .catch(error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Ha ocurrido un error al obtener los usuarios." +
+                    "&messageType=alert-danger ")
             );
     });
 
@@ -106,8 +112,10 @@ module.exports = function (app, usersRepository) {
                 res.write("No se ha podido eliminar el registro");
             }
             res.end();
-        }).catch(error => {
-            res.send("Se ha producido un error al intentar eliminar la canción: " + error)
+        }).catch( () => {
+            res.redirect("/" +
+                "?message=Ha ocurrido un error al eliminar usuarios." +
+                "&messageType=alert-danger ")
         });
     }
 
@@ -163,8 +171,6 @@ module.exports = function (app, usersRepository) {
             rol: "STANDARD"
         }
         await validateUser(user).then(result => {
-
-
             if (result.length > 0) {
                 let url = ""
                 for (error in result) {
