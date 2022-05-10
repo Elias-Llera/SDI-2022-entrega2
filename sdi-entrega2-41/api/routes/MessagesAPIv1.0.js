@@ -38,8 +38,6 @@ module.exports = function (app, friendshipsRepository, messagesRepository) {
     });
 
     app.put('/api/v1.0/messages/read/:id', function (req, res) {
-
-        console.log(req.params.id)
         let msgId = ObjectId(req.params.id)
 
         //Obtenemos el usuario usando su token
