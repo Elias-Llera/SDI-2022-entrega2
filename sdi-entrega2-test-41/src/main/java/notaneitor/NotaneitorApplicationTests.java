@@ -1,10 +1,11 @@
 package notaneitor;
 
-import com.uniovi.notaneitor.pageobjects.*;
+import notaneitor.pageobjects.*;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import notaneitor.util.SeleniumUtils;
 
 import java.util.List;
 
@@ -18,12 +19,12 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
     //static String Geckodriver = "C:\\Dev\\tools\\selenium\\geckodriver-v0.30.0-win64.exe";    //Común a Windows y a MACOSX
     //Común a Windows y a MACOSX
-    static final String URL = "http://localhost:8090";
-    static WebDriver driver = getDriver(PathFirefox, Geckodriver);
-
-    //RUTAS DE OSCAR
     static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+    //static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
+    static String Geckodriver = "C:\\Users\\danie\\Downloads\\geckodriver-v0.30.0-win64\\geckodriver-v0.30.0-win64.exe";
+
+    static final String URL = "http://localhost:3000";
+    static WebDriver driver = getDriver(PathFirefox, Geckodriver);
 
 
     public static WebDriver getDriver(String PathFirefox, String Geckodriver) {
@@ -320,16 +321,16 @@ class NotaneitorApplicationTests {
         PO_PrivateView.clickOnElement(driver, "//a[contains(@class, 'page-link')]", 2);
         userList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
         Assertions.assertEquals(5, userList.size());
-        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User01");
-        boolean notFound2 = PO_HomeView.checkInvisibilityOfElement(driver, "text", "admin");
+        notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User01");
+        notFound2 = PO_HomeView.checkInvisibilityOfElement(driver, "text", "admin");
         Assertions.assertTrue(notFound || notFound2);
 
         //PÁGINA 3 - Vamos a la última página y comprobamos que nuevamente hay 5 elementos y no está el admin
         PO_PrivateView.clickOnElement(driver, "//a[contains(@class, 'page-link')]", 2);
         userList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
         Assertions.assertEquals(5, userList.size());
-        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User01");
-        boolean notFound2 = PO_HomeView.checkInvisibilityOfElement(driver, "text", "admin");
+        notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User01");
+        notFound2 = PO_HomeView.checkInvisibilityOfElement(driver, "text", "admin");
         Assertions.assertTrue(notFound || notFound2);
 
     }
