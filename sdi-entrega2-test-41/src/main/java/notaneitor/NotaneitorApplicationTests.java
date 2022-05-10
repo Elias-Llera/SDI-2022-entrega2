@@ -2,6 +2,7 @@ package notaneitor;
 
 import notaneitor.pageobjects.*;
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -469,6 +470,70 @@ class NotaneitorApplicationTests {
         //Comprobamos que nos salen todos los amigos del usuario
         List<WebElement> friendList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
         Assertions.assertTrue( friendList.size() == 2 );
+    }
+
+    // [Prueba26] Mostrar el listado de publicaciones de un usuario y comprobar
+    // que se muestran todas las que existen para dicho usuario.
+    @Test
+    @Order(28)
+    public void PR26(){
+        //Log in con user con 3 publicaciones
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Ir a la página de publicaciones propias
+        PO_PrivateView.clickSubMenuOption(driver, "postsDropdown", "myPostsMenu");
+
+        //Comprobamos que estamos en la página de listado de publicaciones
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "posts.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("posts.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Comprobamos que hay 3 publicaciones
+        List<WebElement> posts = driver.findElements(By.className("card"));;
+        Assertions.assertEquals(3, posts.size());
+    }
+
+    // [Prueba27] Mostrar el listado de publicaciones de un usuario amigo y comprobar
+    // que se muestran todas las que existen para dicho - usuario.
+    @Test
+    @Order(27)
+    public void PR27(){
+        //Log in con user
+        PO_LoginView.login(driver, "user02@email.com", "user02");
+        //Ir a la pagina de listar amigos
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+
+        //Hacemos clic en un amigo con 3 publicaciones
+        List<WebElement> elements = PO_View.checkElementBy(driver, "free", "//a[contains(@class, 'btn btn-primary')]");
+        elements.get(0).click();
+
+        //Comprobamos que estamos en la página de listado de publicaciones
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "posts.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("posts.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+
+        //Comprobamos que hay 3 publicaciones
+        List<WebElement> posts = driver.findElements(By.className("card"));;
+        Assertions.assertEquals(3, posts.size());
+    }
+
+    // [Prueba28] Utilizando un acceso vía URL u otra alternativa,
+    // tratar de listar las publicaciones de un usuario que no sea amigo
+    // del usuario identificado en sesión. Comprobar que el sistema da un error de autorización.
+    @Test
+    @Order(28)
+    public void PR28(){
+        //Log in con user
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Intentamos acceder mediante URL a un usuario que no es amigo
+        driver.navigate().to(URL+"/post/list/user04@email.com");
+
+        //Comprobamos que estamos en la página de error
+        String checkText = PO_View.getP().getString("error.accessDenied.message", PO_Properties.getSPANISH());
+        List<WebElement> result = PO_View.checkElementByKey(driver, "error.accessDenied.message", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText, result.get(0).getText());
     }
 
 }
