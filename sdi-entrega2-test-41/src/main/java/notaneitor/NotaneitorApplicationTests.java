@@ -215,6 +215,64 @@ class NotaneitorApplicationTests {
 //        PO_PrivateView.clickOption(driver, "logout", "text", loginText);
 //    }
 
+
+
+    //Prueba5] Inicio de sesión con datos válidos (administrador)
+    @Test
+    @Order(7)
+    public void PR05() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "admin@email.com", "admin");
+        //Comprobamos que entramos en la página privada del administrador
+        String checkText = "Usuarios";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba6] Inicio de sesión con datos válidos (usuario estándar)
+    @Test
+    @Order(8)
+    public void PR06() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Listado de usuarios";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba7] Inicio de sesión con datos inválidos (usuario estándar, campo email y contraseña vacíos)
+    @Test
+    @Order(9)
+    public void PR07() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "", "");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Identifícate";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba8] Inicio de sesión con datos válidos (usuario estándar, email existente, pero contraseña incorrecta)
+    @Test
+    @Order(10)
+    public void PR08() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "i");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Email o password incorrecto";
+        List<WebElement> result = PO_LoginView.checkElementBy(driver, "text",checkText );
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
     //[Prueba9] Hacer clic en la opción de salir de sesión y comprobar que se redirige a la página de inicio de
     //sesión (Login).
     @Test
