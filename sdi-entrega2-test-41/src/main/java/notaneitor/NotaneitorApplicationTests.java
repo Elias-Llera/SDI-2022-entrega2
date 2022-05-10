@@ -216,6 +216,85 @@ class NotaneitorApplicationTests {
 //    }
 
 
+    //[Prueba1] Registro de Usuario con datos válidos
+    @Test
+    @Order(1)
+    public void PR01() {
+        //Vamos al formulario de registro
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        //Rellenamos el formulario.
+        PO_SignUpView.fillForm(driver, "uo273649@uniovi.es", "José", "Pérez", "77777", "77777");
+        //Comprobamos que entramos en la sección privada y nos nuestra el texto a buscar
+        String checkText = "Bienvenido a nuestra red social";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+
+        Assertions.assertEquals(checkText, result.get(0).getText());
+        //Send a delete request to remove the user
+
+    }
+
+    //[Prueba2A] Registro de Usuario con datos inválidos: email vacío.
+    @Test
+    @Order(2)
+    public void PR02A() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "", "José", "Pérez", "77777", "77777");
+
+        String checkText = "Rellene este campo.";
+        WebElement result = driver.findElement(By.name("email"));
+
+        Assertions.assertEquals(checkText , result.getAttribute("validationMessage"));
+    }
+
+    //[Prueba2B] Registro de Usuario con datos inválidos: nombre vacío.
+    @Test
+    @Order(3)
+    public void PR02B() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "uo273823@uniovi.es", "", "Pérez", "77777", "77777");
+        String checkText = "Rellene este campo.";
+        WebElement result = driver.findElement(By.name("name"));
+
+        Assertions.assertEquals(checkText , result.getAttribute("validationMessage"));
+    }
+
+    //[Prueba2C] Registro de Usuario con datos inválidos: apellido vacío.
+    @Test
+    @Order(4)
+    public void PR02C() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "uo273823@uniovi.es", "José", "", "77777", "77777");
+
+        String checkText = "Rellene este campo.";
+        WebElement result = driver.findElement(By.name("surname"));
+
+        Assertions.assertEquals(checkText , result.getAttribute("validationMessage"));
+    }
+
+    //[Prueba3] Registro de Usuario con datos inválidos (repetición de contraseña inválida).
+    @Test
+    @Order(5)
+    public void PR03() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "uo273823@uniovi.es", "José", "Pérez", "11111", "66666");
+
+        String checkText = "Las contraseñas no coinciden ";
+        List<WebElement> result = PO_SignUpView.checkElementBy(driver, "text",checkText );
+    }
+
+    //[Prueba4] Registro de Usuario con datos inválidos (email existente).
+    @Test
+    @Order(6)
+    public void PR04() {
+        //Vamos al formulario de registro
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        //Utilizamos un mail de un usuario ya existente
+        PO_SignUpView.fillForm(driver,  "user01@email.com", "José", "Pérez", "77777", "77777");
+        String checkText = "El email ya existe";
+        List<WebElement> result = PO_SignUpView.checkElementBy(driver, "text",checkText );
+        //Comprobamos el error de repeated email.
+        Assertions.assertEquals(checkText , result.get(0).getText());
+    }
 
     //Prueba5] Inicio de sesión con datos válidos (administrador)
     @Test

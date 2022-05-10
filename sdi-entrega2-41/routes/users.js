@@ -161,6 +161,7 @@ module.exports = function (app, usersRepository) {
     })
 
     app.post('/users/signup', async function (req, res) {
+
         let securePassword = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
         let user = {
@@ -170,7 +171,9 @@ module.exports = function (app, usersRepository) {
             surname: req.body.surname,
             rol: "STANDARD"
         }
-        await validateUser(user).then(result => {
+        await validateUser(user,req.body.password,req.body.passwordConfirm).then(result => {
+
+
             if (result.length > 0) {
                 let url = ""
                 for (error in result) {
@@ -187,7 +190,7 @@ module.exports = function (app, usersRepository) {
         });
     })
 
-    async function validateUser(user) {
+    async function validateUser(user,originalPassword,confirmPassword) {
         let errors = [];
         if (user.email == null || user.email == "") {
             errors.push("El email es obligatorio");
@@ -200,6 +203,9 @@ module.exports = function (app, usersRepository) {
         }
         if (user.surname == null || user.surname == "") {
             errors.push("El apellido es obligatorio");
+        }
+        if(originalPassword != confirmPassword){
+            errors.push("Las contraseñas no coinciden");
         }
         //check that the email format is correct
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
