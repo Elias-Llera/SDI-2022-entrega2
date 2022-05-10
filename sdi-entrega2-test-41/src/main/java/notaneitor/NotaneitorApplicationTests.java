@@ -1,6 +1,7 @@
 package notaneitor;
 
-import com.uniovi.notaneitor.pageobjects.*;
+import notaneitor.pageobjects.*;
+import notaneitor.util.SeleniumUtils;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,18 +13,18 @@ import java.util.List;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class NotaneitorApplicationTests {
     //Para MACOSX
-    //static String PathFirefox = "/Applications/Firefox 2.app/Contents/MacOS/firefox-bin";
+    static String PathFirefox = "/Applications/Firefox 2.app/Contents/MacOS/firefox-bin";
     //static String Geckodriver = "/Users/delacal/selenium/geckodriver-v0.30.0-macos";
     //Para Windows
-    //static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
+    static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
     //static String Geckodriver = "C:\\Dev\\tools\\selenium\\geckodriver-v0.30.0-win64.exe";    //Común a Windows y a MACOSX
     //Común a Windows y a MACOSX
     static final String URL = "http://localhost:8090";
     static WebDriver driver = getDriver(PathFirefox, Geckodriver);
 
     //RUTAS DE OSCAR
-    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    //static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
 
 
     public static WebDriver getDriver(String PathFirefox, String Geckodriver) {
