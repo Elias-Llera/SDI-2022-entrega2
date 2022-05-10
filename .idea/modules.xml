@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/sdi-entrega2-41.iml" filepath="$PROJECT_DIR$/.idea/sdi-entrega2-41.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdi-entrega2-test-41/sdi-entrega2-tst-n.iml" filepath="$PROJECT_DIR$/sdi-entrega2-test-41/sdi-entrega2-tst-n.iml" />
     </modules>
   </component>
 </project>
