@@ -85,6 +85,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const userTokenRouter = require('./api/routes/userTokenRouter');
 app.use("/api/v1.0/friends/", userTokenRouter);
 app.use("/api/v1.0/messages/", userTokenRouter);
+app.use("/api/v1.0/messages/read/:id", userTokenRouter);
 
 // Rutas app
 require("./routes/users.js")(app, usersRepository);
