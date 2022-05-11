@@ -16,16 +16,8 @@
 <script>
     window.history.pushState("", "", "/apiclient/client.html?w=friends");
 
-    let filteredFriends;
-    let friends;
-
-    // C7 - Sistema de ordenacion automatico
-    $('#filter-by-last-message').on('input',function(e){
-        let filteredFriends = [];
-        let filterValue = $("#filter-by-name").val();
-        filteredFriends = friends.filter(song => song.title.includes(filterValue));
-        updateFriendsTable(filteredFriends);
-    });
+    var selectedFriendEmail;
+    var friends;
 
     // C2 - Mostrar la lista de amigos
     function loadFriends() {
@@ -46,16 +38,53 @@
 
     function updateFriendsTable(friends) {
         $("#friendsTableBody").empty(); // Vaciamos la tabla
+        // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
+        const htmlToAppend = (user, message) =>  `
+                <tr id="${user._id}">
+                    <td>${user.email}</td>
+                    <td>${user.name}</td>
+                    <td>${user.surname}</td>
+                </tr>
+
+                <tr>
+                    <td colspan="3">
+                        <a className="link-info" onClick="chatWithFriend('${user.email}')">${message.date} - ${message.text}</a>
+                    </td>
+                </tr>
+            `;
+        // Para cada amigo, insertamos un nuevo elemento en la tabla
         friends.forEach((user) => {
-            $("#friendsTableBody").append(
-                "<tr id=" + user._id + ">" +
-                "<td>" + user.email + "</td>" +
-                "<td>" + user.name + "</td>" +
-                "<td>" + user.surname + "</td>" +
-                "</tr>");
+            var messages = loadMessages(user); // obtenemos los mensajes
+            // Pasamos el último mensaje que se ha recibido
+            $("#friendsTableBody").append(htmlToAppend(user, messages[messages.length - 1]));
         })
     }
 
-    // Cargamos los amigos automaticamente
+    function chatWithFriend(email) {
+        selectedFriendEmail = email;
+        $("#main-container").load("widget-chat.html");
+    }
+
+    function loadMessages(user) {
+        $.ajax({
+            url: URLbase + "/messages",
+            type: "GET",
+            dataType: 'json',
+            headers: {
+                "token": token,
+                "user": user,
+            },
+            success: function (response) {
+                return response.messages; // devolvemos los mensajes obtenidos
+            },
+            error: function (error) {
+                // VOLVEMOS a la pantalla de inicio de sesión
+                alert(error); // tras haber informado al usuario de que un error ha ocurrido
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    }
+
+    // Cargamos los amigos automáticamente
     loadFriends();
 </script>

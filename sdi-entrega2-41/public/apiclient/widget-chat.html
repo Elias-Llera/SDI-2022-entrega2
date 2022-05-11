@@ -1,0 +1,79 @@
+<div id="widget-chat" class="container">
+    <div class="box-footer">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>My friend</th>
+                <th>Me</th>
+            </tr>
+            </thead>
+            <tbody id="chatTableBody"></tbody>
+        </table>
+
+        <div class="input-group">
+            <input
+                    type="text"
+                    id="message"
+                    name="message"
+                    placeholder="Type Message..."
+                    class="form-control"
+            >
+            <span class="input-group-btn">
+                <button type="button" id="button-message" class="btn btn-primary btn-flat">Send</button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.history.pushState("", "", "/apiclient/client.html?w=chat");
+
+    function updateMessagesTable() {
+        // El mecanismos para crear el chat será similar al utilizado para crear la tabla de amigos
+        $("#chatTableBody").empty(); // Vaciamos la tabla
+        // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
+        // Deberemos preparar dos formatos: si es un amigo el que escribe...
+        const isAMessageFromFriend = (message) =>  `
+                <tr id="${message.date}">
+                    <td>${message.text}</td>
+                    <td></td>
+                </tr>
+            `;
+        // Si soy yo el que ha escrito el mensaje...
+        const isAMessageFromMe = (message) =>  `
+                <tr id="${message.date}">
+                    <td></td>
+                    <td>${message.text}</td>
+                </tr>
+            `;
+        // Para cada mensaje, insertamos un nuevo elemento en la tabla
+        loadMessages(selectedFriendEmail).forEach((message) => {
+            if (message.receiver === selectedFriendEmail)
+                $("#chatTableBody").append(isAMessageFromFriend(message));
+            else
+                $("#chatTableBody").append(isAMessageFromMe(message));
+        })
+    }
+
+    $("#button-message").click(function () {
+        $.ajax({
+            url: URLbase + "/friends",
+            type: "POST",
+            dataType: 'json',
+            data: {
+                receiver: selectedFriendEmail,
+                text: $("#message").val(),
+            },
+            headers: {"token": token},
+            success: function (response) {
+                console.log("Mensaje: " + $("#message").val() + ". Enviado con éxito!");
+            },
+            error: function (error) {
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    });
+
+    // Ejecutamos la función cada segundo :)
+    window.setInterval(updateMessagesTable, 1000);
+</script>

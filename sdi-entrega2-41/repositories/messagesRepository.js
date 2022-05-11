@@ -1,5 +1,4 @@
 module.exports = {
-
     mongoClient: null,
     app: null,
 
@@ -8,7 +7,7 @@ module.exports = {
         this.app = app;
     },
 
-    getMessages: async function (filter,options) {
+    getMessages: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
             const database = client.db("entrega2");

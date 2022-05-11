@@ -5,7 +5,6 @@ let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 require('dotenv').config();
 
-
 let app = express();
 
 // Añadimos las cabeceras mas permisivas de Access-Cotrol-Allow-Origin para todas las peticiones
@@ -45,7 +44,6 @@ app.use(expressSession({
   saveUninitialized: true
 }));
 
-
 // Repositorios
 let usersRepository = require("./repositories/usersRepository.js");
 usersRepository.init(app, MongoClient);
@@ -72,7 +70,7 @@ require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
 
 require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
-require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
+require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository, messagesRepository);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -92,19 +90,6 @@ app.use(cookieParser());
 
 // Directorio público del proyecto
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-// Rutas app
-require("./routes/users.js")(app, usersRepository);
-require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
-require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
-
-require("./api/routes/UsersAPIv1.0.js")(app, usersRepository);
-require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
-
-
-// Usar rutas index
-app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
