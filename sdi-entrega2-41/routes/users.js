@@ -96,21 +96,7 @@ module.exports = function (app, usersRepository) {
             }
         }
 
-        usersRepository.getUsers({}, { sort: {email: 1}})
-            .then(result => {
-
-                let response = {
-                    users: result.users,
-                    session: req.session,
-                    search: req.query.search
-                }
-                res.redirect("/users/admin/list");
-            })
-            .catch( () =>
-                res.redirect("/" +
-                    "?message=Ha ocurrido un error al obtener los usuarios." +
-                    "&messageType=alert-danger ")
-            );
+        res.redirect("/users/admin/list");
     });
 
     /**
