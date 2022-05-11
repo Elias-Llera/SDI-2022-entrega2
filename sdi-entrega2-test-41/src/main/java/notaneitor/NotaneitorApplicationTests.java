@@ -2,6 +2,7 @@ package notaneitor;
 
 import notaneitor.pageobjects.*;
 import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -216,6 +217,143 @@ class NotaneitorApplicationTests {
 //        String loginText = PO_HomeView.getP().getString("signup.message", PO_Properties.getSPANISH());
 //        PO_PrivateView.clickOption(driver, "logout", "text", loginText);
 //    }
+
+
+    //[Prueba1] Registro de Usuario con datos válidos
+    @Test
+    @Order(1)
+    public void PR01() {
+        //Vamos al formulario de registro
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        //Rellenamos el formulario.
+        PO_SignUpView.fillForm(driver, "uo273649@uniovi.es", "José", "Pérez", "77777", "77777");
+        //Comprobamos que entramos en la sección privada y nos nuestra el texto a buscar
+        String checkText = "Bienvenido a nuestra red social";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+
+        Assertions.assertEquals(checkText, result.get(0).getText());
+        //Send a delete request to remove the user
+
+    }
+
+    //[Prueba2A] Registro de Usuario con datos inválidos: email vacío.
+    @Test
+    @Order(2)
+    public void PR02A() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "", "José", "Pérez", "77777", "77777");
+
+        String checkText = "Rellene este campo.";
+        WebElement result = driver.findElement(By.name("email"));
+
+        Assertions.assertEquals(checkText , result.getAttribute("validationMessage"));
+    }
+
+    //[Prueba2B] Registro de Usuario con datos inválidos: nombre vacío.
+    @Test
+    @Order(3)
+    public void PR02B() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "uo273823@uniovi.es", "", "Pérez", "77777", "77777");
+        String checkText = "Rellene este campo.";
+        WebElement result = driver.findElement(By.name("name"));
+
+        Assertions.assertEquals(checkText , result.getAttribute("validationMessage"));
+    }
+
+    //[Prueba2C] Registro de Usuario con datos inválidos: apellido vacío.
+    @Test
+    @Order(4)
+    public void PR02C() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "uo273823@uniovi.es", "José", "", "77777", "77777");
+
+        String checkText = "Rellene este campo.";
+        WebElement result = driver.findElement(By.name("surname"));
+
+        Assertions.assertEquals(checkText , result.getAttribute("validationMessage"));
+    }
+
+    //[Prueba3] Registro de Usuario con datos inválidos (repetición de contraseña inválida).
+    @Test
+    @Order(5)
+    public void PR03() {
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        PO_SignUpView.fillForm(driver, "uo273823@uniovi.es", "José", "Pérez", "11111", "66666");
+
+        String checkText = "Las contraseñas no coinciden ";
+        List<WebElement> result = PO_SignUpView.checkElementBy(driver, "text",checkText );
+    }
+
+    //[Prueba4] Registro de Usuario con datos inválidos (email existente).
+    @Test
+    @Order(6)
+    public void PR04() {
+        //Vamos al formulario de registro
+        PO_HomeView.clickOption(driver, "signup", "class", "btn btn-primary");
+        //Utilizamos un mail de un usuario ya existente
+        PO_SignUpView.fillForm(driver,  "user01@email.com", "José", "Pérez", "77777", "77777");
+        String checkText = "El email ya existe";
+        List<WebElement> result = PO_SignUpView.checkElementBy(driver, "text",checkText );
+        //Comprobamos el error de repeated email.
+        Assertions.assertEquals(checkText , result.get(0).getText());
+    }
+
+    //Prueba5] Inicio de sesión con datos válidos (administrador)
+    @Test
+    @Order(7)
+    public void PR05() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "admin@email.com", "admin");
+        //Comprobamos que entramos en la página privada del administrador
+        String checkText = "Usuarios";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba6] Inicio de sesión con datos válidos (usuario estándar)
+    @Test
+    @Order(8)
+    public void PR06() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Listado de usuarios";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba7] Inicio de sesión con datos inválidos (usuario estándar, campo email y contraseña vacíos)
+    @Test
+    @Order(9)
+    public void PR07() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "", "");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Identifícate";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba8] Inicio de sesión con datos válidos (usuario estándar, email existente, pero contraseña incorrecta)
+    @Test
+    @Order(10)
+    public void PR08() {
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "i");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Email o password incorrecto";
+        List<WebElement> result = PO_LoginView.checkElementBy(driver, "text",checkText );
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
 
     //[Prueba9] Hacer clic en la opción de salir de sesión y comprobar que se redirige a la página de inicio de
     //sesión (Login).
@@ -469,6 +607,112 @@ class NotaneitorApplicationTests {
         //Comprobamos que los resultados son los esperados
         PO_UserListView.checkElementBy(driver, "text", "user14");
         PO_UserListView.checkElementBy(driver, "text", "user15");
+    }
+
+    //[Prueba21] Mostrar el listado de invitaciones de amistad recibidas.
+    // Comprobar con un listado que contenga varias invitaciones recibidas.
+    @Test
+    @Order(21)
+    public void PR21() {
+        //Iniciamos sesión como usuario estándar
+        PO_LoginView.login(driver, "user03@email.com", "user03");
+
+        //Vamos a la vista /friendInvitations/list
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "invitationsMenu");
+
+        //Comprobamos que estamos en la vista friend invitation list
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "friendInvitation.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("friendInvitation.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Comprobamos que hay solicitudes de amistad
+        List<WebElement> invList = SeleniumUtils.waitLoadElementsBy(driver, "free", "/h3", PO_View.getTimeout());
+        Assertions.assertTrue( invList.size() == 3 );
+    }
+
+    // [Prueba23] Mostrar el listado de amigos de un usuario.
+    // Comprobar que el listado contiene los amigos que deben ser
+    @Test
+    @Order(23)
+    public void  PR23(){
+        //Log in con user
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Ir a la página de listado de amigos
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+
+        //Comprobamos que estamos en la página de listado de amigos
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "friends.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("friends.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Comprobamos que nos salen todos los amigos del usuario
+        List<WebElement> friendList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
+        Assertions.assertTrue( friendList.size() == 2 );
+    }
+
+    // [Prueba26] Mostrar el listado de publicaciones de un usuario y comprobar
+    // que se muestran todas las que existen para dicho usuario.
+    @Test
+    @Order(28)
+    public void PR26(){
+        //Log in con user con 3 publicaciones
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Ir a la página de publicaciones propias
+        PO_PrivateView.clickSubMenuOption(driver, "postsDropdown", "myPostsMenu");
+
+        //Comprobamos que estamos en la página de listado de publicaciones
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "posts.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("posts.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+        //Comprobamos que hay 3 publicaciones
+        List<WebElement> posts = driver.findElements(By.className("card"));;
+        Assertions.assertEquals(3, posts.size());
+    }
+
+    // [Prueba27] Mostrar el listado de publicaciones de un usuario amigo y comprobar
+    // que se muestran todas las que existen para dicho - usuario.
+    @Test
+    @Order(27)
+    public void PR27(){
+        //Log in con user
+        PO_LoginView.login(driver, "user02@email.com", "user02");
+        //Ir a la pagina de listar amigos
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+
+        //Hacemos clic en un amigo con 3 publicaciones
+        List<WebElement> elements = PO_View.checkElementBy(driver, "free", "//a[contains(@class, 'btn btn-primary')]");
+        elements.get(0).click();
+
+        //Comprobamos que estamos en la página de listado de publicaciones
+        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "posts.list.info", PO_Properties.getSPANISH() );
+        String checkText = PO_HomeView.getP().getString("posts.list.info", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText , result.get(0).getText());
+
+
+        //Comprobamos que hay 3 publicaciones
+        List<WebElement> posts = driver.findElements(By.className("card"));;
+        Assertions.assertEquals(3, posts.size());
+    }
+
+    // [Prueba28] Utilizando un acceso vía URL u otra alternativa,
+    // tratar de listar las publicaciones de un usuario que no sea amigo
+    // del usuario identificado en sesión. Comprobar que el sistema da un error de autorización.
+    @Test
+    @Order(28)
+    public void PR28(){
+        //Log in con user
+        PO_LoginView.login(driver, "user01@email.com", "user01");
+
+        //Intentamos acceder mediante URL a un usuario que no es amigo
+        driver.navigate().to(URL+"/post/list/user04@email.com");
+
+        //Comprobamos que estamos en la página de error
+        String checkText = PO_View.getP().getString("error.accessDenied.message", PO_Properties.getSPANISH());
+        List<WebElement> result = PO_View.checkElementByKey(driver, "error.accessDenied.message", PO_Properties.getSPANISH());
+        Assertions.assertEquals(checkText, result.get(0).getText());
     }
 
 }

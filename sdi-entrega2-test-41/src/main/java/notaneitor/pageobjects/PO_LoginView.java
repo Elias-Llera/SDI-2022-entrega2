@@ -24,6 +24,8 @@ public class PO_LoginView extends PO_NavView {
 	}
 
 
+
+
 	public static void login(WebDriver driver, String username, String passwordp) {
 		// Vamos al formulario de inicio de sesión
 		driver.findElements(By.id("loginButton")).get(0).click();

@@ -23,11 +23,17 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
                 .then(
                     res.redirect("/posts/" + req.session.user)
                 )
-                .catch(error =>
-                    res.send("Error: " + error)
+                .catch( () =>
+                    res.redirect("/posts/" + req.session.user +
+                        "?message=Se ha producido un error al insertar la publicación" +
+                        "&messageType=alert-danger ")
                 );
         } else {
-            res.send("Errores en el formulario: " + errors)
+            let url = ""
+            for (error in errors) {
+                url += "&message=" + errors[error] + "&messageType=alert-danger "
+            }
+            res.redirect("/posts/" + req.session.user + "?" + url);
         }
     });
 
@@ -68,10 +74,14 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
                     res.render("posts/list.twig", response);
                 })
                 .catch( error => {
-                    res.send("Error: " + error);
+                    res.redirect("/" +
+                        "?message=Se ha producido un error al buscar las publicaciones" +
+                        "&messageType=alert-danger ");
                 })
         } else {
-            res.send("Acceso no autorizado");
+            res.redirect("/posts/" + req.session.user +
+                "?message=Acceso no autorizado" +
+                "&messageType=alert-danger ");
         }
     });
 

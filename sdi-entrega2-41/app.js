@@ -5,8 +5,17 @@ let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 require('dotenv').config();
 
-
 let app = express();
+
+// Añadimos las cabeceras mas permisivas de Access-Cotrol-Allow-Origin para todas las peticiones
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, UPDATE, PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token")
+  // Debemos especificar todas las headers que se aceptan. Content-Type , token
+  next();
+});
 
 //Modulo para generar token de autenticacion
 let jwt = require('jsonwebtoken');
@@ -35,7 +44,6 @@ app.use(expressSession({
   saveUninitialized: true
 }));
 
-
 // Repositorios
 let usersRepository = require("./repositories/usersRepository.js");
 usersRepository.init(app, MongoClient);
@@ -54,9 +62,6 @@ let adminSessionRouter = require('./routes/adminSessionRouter');
 app.use("/users/list", userSessionRouter);
 app.use("/users/admin/list", adminSessionRouter);
 app.use("/users/delete", adminSessionRouter);
-
-
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -77,15 +82,19 @@ app.use(cookieParser());
 // Directorio público del proyecto
 app.use(express.static(path.join(__dirname, 'public')));
 
+const userTokenRouter = require('./api/routes/userTokenRouter');
+app.use("/api/v1.0/friends/", userTokenRouter);
+app.use("/api/v1.0/messages/", userTokenRouter);
 
 // Rutas app
 require("./routes/users.js")(app, usersRepository);
 require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
-require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
+require("./routes/friendships.js")(app, friendshipsRepository, usersRepository);
+// SOLO PARA TESTS!!!!!!!!!!!!!!!!!
+require("./routes/bd.js")(app, usersRepository, friendshipsRepository, usersRepository)
 
-require("./api/routes/UsersAPIv1.0.js")(app, usersRepository);
+require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
 require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
-
 
 // Usar rutas index
 app.use('/', indexRouter);

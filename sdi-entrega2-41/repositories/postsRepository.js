@@ -103,4 +103,22 @@ module.exports = {
         }
     },
 
+    /**
+     */
+    resetPosts: async function (posts) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'posts';
+            const postsCollection = database.collection(collectionName);
+            await postsCollection.remove({});
+            for (let post of posts){
+                await postsCollection.insertOne(post);
+            }
+            return true;
+        } catch(error){
+            throw error;
+        }
+    }
+
 };
