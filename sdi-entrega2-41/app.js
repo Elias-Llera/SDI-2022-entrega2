@@ -91,7 +91,7 @@ require("./routes/users.js")(app, usersRepository);
 require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository, usersRepository);
 // SOLO PARA TESTS!!!!!!!!!!!!!!!!!
-require("./routes/bd.js")(app, usersRepository, friendshipsRepository, usersRepository)
+require("./routes/bd.js")(app, usersRepository, friendshipsRepository, postsRepository)
 
 require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
 require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
