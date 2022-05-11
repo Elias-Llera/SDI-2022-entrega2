@@ -1,5 +1,4 @@
 module.exports = {
-
     mongoClient: null,
     app: null,
 

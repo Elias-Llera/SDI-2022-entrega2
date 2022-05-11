@@ -16,16 +16,7 @@
 <script>
     window.history.pushState("", "", "/apiclient/client.html?w=friends");
 
-    let filteredFriends;
-    let friends;
-
-    // C7 - Sistema de ordenacion automatico
-    $('#filter-by-last-message').on('input',function(e){
-        let filteredFriends = [];
-        let filterValue = $("#filter-by-name").val();
-        filteredFriends = friends.filter(song => song.title.includes(filterValue));
-        updateFriendsTable(filteredFriends);
-    });
+    var selectedFriendEmail;
 
     // C2 - Mostrar la lista de amigos
     function loadFriends() {
@@ -35,8 +26,7 @@
             dataType: 'json',
             headers: {"token": token},
             success: function (response) {
-                friends = response.friends;
-                updateFriendsTable(friends);
+                updateFriendsTable(response.friends);
             },
             error: function (error) {
                 $("#main-container").load("widget-login.html");
@@ -46,16 +36,78 @@
 
     function updateFriendsTable(friends) {
         $("#friendsTableBody").empty(); // Vaciamos la tabla
-        friends.forEach((user) => {
-            $("#friendsTableBody").append(
-                "<tr id=" + user._id + ">" +
-                "<td>" + user.email + "</td>" +
-                "<td>" + user.name + "</td>" +
-                "<td>" + user.surname + "</td>" +
-                "</tr>");
-        })
+        // Para cada amigo, insertamos un nuevo elemento en la tabla
+        friends.map((user) => {
+            loadMessagesForFriend(user)
+        });
     }
 
-    // Cargamos los amigos automaticamente
+    function friendToRow(user, messages) {
+        // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
+        const friendHasMessages = (user, message) =>  `
+                <tr id="${user._id}">
+                    <td>${user.email}</td>
+                    <td>${user.name}</td>
+                    <td>${user.surname}</td>
+
+                </tr>
+
+                <tr>
+                    <td colspan="3">
+                        <a className="link-info" onClick="chatWithFriend('${user.email}')">${new Date(message.date).toDateString()} - ${message.text}</a>
+                    </td>
+                </tr>
+            `;
+        // Lo mismo en caso de que el usuario no tenga mensajes :(
+        const friendHasNoMessages = (user) =>  `
+                <tr id="${user._id}">
+                    <td>${user.email}</td>
+                    <td>${user.name}</td>
+                    <td>${user.surname}</td>
+                </tr>
+
+                <tr>
+                    <td colspan="3">
+                        <a className="link-info" onClick="chatWithFriend('${user.email}')">Ir al chat</a>
+                    </td>
+                </tr>
+            `;
+
+        // Mostramos al amigo de una forma u otra dependiendo de si hay mensajes con él o no
+        if (messages === undefined || messages.length === 0) // En caso de que no tengamos mensajes con ese amigo
+            $("#friendsTableBody").append(friendHasNoMessages(user));
+        else // Si tenemos mensajes... Pasamos el último mensaje que se ha recibido
+            $("#friendsTableBody").append(friendHasMessages(user, messages[messages.length - 1]));
+    }
+
+    function chatWithFriend(email) {
+        selectedFriendEmail = email;
+        $("#main-container").load("widget-chat.html");
+    }
+
+    function loadMessagesForFriend(user) {
+        $.ajax({
+            url: URLbase + "/messages",
+            type: "POST",
+            dataType: 'json',
+            data: {
+                user: user.email,
+            },
+            headers: {
+                "token": token,
+            },
+            success: function (response) {
+                // Le damos formato de tabla apropiadamente
+                friendToRow(user, response.messages)
+            },
+            error: function (error) {
+                // VOLVEMOS a la pantalla de inicio de sesión
+                alert("Ha ocurrido un error :("); // tras haber informado al usuario de que un error ha ocurrido
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    }
+
+    // Cargamos los amigos automáticamente
     loadFriends();
 </script>

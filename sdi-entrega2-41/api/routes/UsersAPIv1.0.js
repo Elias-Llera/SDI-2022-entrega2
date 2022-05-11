@@ -53,7 +53,7 @@ module.exports = function (app, usersRepository, friendshipsRepository) {
 
     app.get("/api/v1.0/friends", function (req, res) {
         let user = res.user;
-        let friendshipsFilter = {state: "ACCEPTED", $or:[{sender: user}, {receiver: user}] };
+        let friendshipsFilter = {status: "ACCEPTED", $or:[{sender: user}, {receiver: user}] };
 
         friendshipsRepository.getFriendships(friendshipsFilter, {}).then(friendships => {
             let senders = friendships.map( f=> f.sender).filter( s => s !== user);

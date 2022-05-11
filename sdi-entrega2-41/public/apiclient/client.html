@@ -33,15 +33,30 @@
 </nav>
 <!--Contenido -->
 <div class="container" id="main-container"> <!--id para identificar --></div>
+
 <script>
-    let token;
-    let URLbase = "http://localhost:3000/api/v1.0"; // URL base de la aplicacion
+    var token;
+    var URLbase = "http://localhost:3000/api/v1.0"; // URL base de la aplicacion
 
     if ( Cookies.get('token') != null ){
         token = Cookies.get('token');
         $( "#main-container" ).load("widget-friends.html");
+
+        let url = new URL(window.location.href);
+        let w = url.searchParams.get("w");
+
+        if (w === "login") {
+            $("#main-container").load("widget-login.html");
+        }
+        if (w === "friends") {
+            $("#main-container").load("widget-friends.html");
+        }
+        if (w === "chat") {
+            $("#main-container").load("widget-chat.html");
+        }
     }else
         $( "#main-container" ).load("widget-login.html");
 </script>
+
 </body>
 </html>

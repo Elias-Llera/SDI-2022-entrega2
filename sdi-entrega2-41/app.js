@@ -60,6 +60,10 @@ let userSessionRouter = require('./routes/userSessionRouter');
 let adminSessionRouter = require('./routes/adminSessionRouter');
 
 app.use("/users/list", userSessionRouter);
+
+const userTokenRouter = require('./api/routes/userTokenRouter');
+app.use("/api/v1.0/friends/", userTokenRouter);
+app.use("/api/v1.0/messages/", userTokenRouter);
 app.use("/users/admin/list", adminSessionRouter);
 app.use("/users/delete", adminSessionRouter);
 
@@ -73,7 +77,7 @@ app.use(logger('dev'));
 // Uso de json para las respuestas
 app.use(express.json());
 
-// Codificación de urls
+// Codificacion de urls
 app.use(express.urlencoded({ extended: false }));
 
 // Uso de cookies
@@ -85,17 +89,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 const userTokenRouter = require('./api/routes/userTokenRouter');
 app.use("/api/v1.0/friends/", userTokenRouter);
 app.use("/api/v1.0/messages/", userTokenRouter);
-app.use("/api/v1.0/messages/read/:id", userTokenRouter);
 
 // Rutas app
 require("./routes/users.js")(app, usersRepository);
 require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
 require("./routes/friendships.js")(app, friendshipsRepository, usersRepository);
+
 // SOLO PARA TESTS!!!!!!!!!!!!!!!!!
-require("./routes/bd.js")(app, usersRepository, friendshipsRepository, usersRepository)
+require("./routes/bd.js")(app, usersRepository, friendshipsRepository, postsRepository)
 
 require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
-require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
+require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository, messagesRepository);
 
 // Usar rutas index
 app.use('/', indexRouter);
