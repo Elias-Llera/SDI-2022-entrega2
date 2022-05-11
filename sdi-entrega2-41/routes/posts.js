@@ -4,7 +4,7 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
      *
      */
     app.get("/posts/add", function(req, res){
-        res.render("posts/add.twig");
+        res.render("posts/add.twig", {session:req.session});
     });
 
     /**
@@ -40,7 +40,7 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
     /**
      *
      */
-    app.get("/posts/:userEmail", function(req, res) {
+    app.get("/posts/:userEmail", async function(req, res) {
         console.log(req.params.userEmail);
         let filter = { author: req.params.userEmail};
         let options = {};
@@ -50,7 +50,7 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
             page = 1;
         }
 
-        let canSee = checkCanSeePostsFrom(req.params.userEmail, req.session.user)
+        let canSee = await checkCanSeePostsFrom(req.params.userEmail, req.session.user)
         if(canSee) {
             postsRepository.getPostsPg(filter, options, page)
                 .then( result =>{
@@ -68,20 +68,24 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
                     let response = {
                         posts: result.posts,
                         userEmail: req.params.userEmail,
+                        session: req.session,
                         pages: pages,
                         currentPage: page
                     }
                     res.render("posts/list.twig", response);
                 })
-                .catch( error => {
+                .catch( () => {
                     res.redirect("/" +
                         "?message=Se ha producido un error al buscar las publicaciones" +
                         "&messageType=alert-danger ");
                 })
         } else {
-            res.redirect("/posts/" + req.session.user +
-                "?message=Acceso no autorizado" +
-                "&messageType=alert-danger ");
+            let response = {
+                message: "Acceso no autorizado",
+                error : {status: 403,
+                stack: "No tienes permisos para acceder a esta información."}
+            }
+            res.render("error.twig", response);
         }
     });
 
@@ -92,10 +96,14 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
      * @returns {Promise<boolean>}
      */
     async function checkCanSeePostsFrom(user, registeredUser){
+        console.log(registeredUser)
+        if(typeof registeredUser == 'undefined' || registeredUser == null || registeredUser.toString().trim().length == 0)
+            return false
         if(user === registeredUser)
             return true;
-        let filter = {state:"ACCEPTED", $or: [{sender: registeredUser}, {receiver: registeredUser}] };
+        let filter = {status:"ACCEPTED", $or: [{sender: registeredUser, receiver: user}, {sender:user, receiver: registeredUser}] };
         let friendships = await friendshipsRepository.getFriendships(filter, {})
+        console.log(friendships);
         return friendships.length > 0;
     }
 

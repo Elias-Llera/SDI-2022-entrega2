@@ -6,18 +6,21 @@
 
     <!-- Listado de invitaciones -->
     <div class="row">
+        {% if invitations|length == 0 %}
+            <h3>No hay invitaciones pendientes</h3>
+        {% else %}
         {% for invitation in invitations %}
-            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-                <div style="width:200px">
-                    <h3>{{ invitation.sender }}</h3>
-                    <form class="form-horizontal" method="post" action="/friendships/accept/{{ invitation.email }}" >
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">Aceptar</button>
-                        </div>
-                    </form>
-                </div>
+
+            <div class="card" style="width: 18rem;">
+                <h3 class="card-title">{{ invitation.email }}</h3>
+                <h4 class="card-subtitle">{{ invitation.name }} {{ invitation.surname }}</h4>
+                <form class="form-horizontal" method="post" action="/friendships/accept/{{ invitation.email }}" >
+                    <button type="submit" class="btn btn-primary">Aceptar</button>
+                </form>
             </div>
+
         {% endfor %}
+        {% endif %}
     </div>
 
     <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->

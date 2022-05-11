@@ -40,6 +40,12 @@ module.exports = function (app, usersRepository, friendshipsRepository, postsRep
 
         friendships.push({
             sender:"user01@email.com",
+            receiver:"user04@email.com",
+            status:"ACCEPTED"
+        })
+
+        friendships.push({
+            sender:"user01@email.com",
             receiver:"user03@email.com",
             status:"PENDING"
         })

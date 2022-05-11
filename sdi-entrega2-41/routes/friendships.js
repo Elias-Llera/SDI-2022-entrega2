@@ -4,8 +4,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      *
      */
     app.get("/friendships/friends", function (req, res){
-        let registeredUser = req.session.user;
-        let friendshipsFilter = {state: "ACCEPTED", $or:[{sender: registeredUser}, {receiver: registeredUser}] };
+        let friendshipsFilter = {status: "ACCEPTED", $or: [{sender: req.session.user}, {receiver: req.session.user}] };
 
         let page = parseInt(req.query.page);
         if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
@@ -30,12 +29,15 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                 let friends = senders.concat(receivers);
                 let usersFilter = { email: { $in: friends }};
                 usersRepository.getUsers(usersFilter, {})
-                    .then( users => {
+                    .then( result => {
                         let response = {
-                            friends: users,
+                            friends: result.users,
+                            session:req.session,
                             pages: pages,
                             currentPage: page
                         }
+
+                        console.log(response.friends);
                         res.render("friendships/friends.twig", response);
                     })
                     .catch( () =>
@@ -55,7 +57,7 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      *
      */
     app.get("/friendships/invitations", function (req, res){
-        let friendshipsFilter = { state:"PENDING", receiver:req.session.user };
+        let friendshipsFilter = { status:"PENDING", receiver:req.session.user };
 
         let page = parseInt(req.query.page);
         if (typeof req.query.page === "undefined" || req.query.page === null || req.query.page === "0") {
@@ -78,9 +80,10 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                 let senders = result.friendships.map( f=> f.sender);
                 let usersFilter = { email: { $in: senders }};
                 usersRepository.getUsers(usersFilter, {})
-                    .then( users => {
+                    .then( result => {
                         let response = {
-                            invitations: users,
+                            invitations: result.users,
+                            session:req.session,
                             pages: pages,
                             currentPage: page
                         }
@@ -136,8 +139,8 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
 
     /**
      *
-     * @param userId
-     * @param registeredUserId
+     * @param userEmail
+     * @param registeredUser
      * @returns {Promise<boolean>}
      */
     async function canSendInviteTo(userEmail, registeredUser){
