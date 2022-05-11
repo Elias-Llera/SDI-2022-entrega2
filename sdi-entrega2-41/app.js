@@ -57,20 +57,15 @@ messagesRepository.init(app, MongoClient);
 // Ruta index
 let indexRouter = require('./routes/index');
 let userSessionRouter = require('./routes/userSessionRouter');
+let adminSessionRouter = require('./routes/adminSessionRouter');
 
 app.use("/users/list", userSessionRouter);
 
 const userTokenRouter = require('./api/routes/userTokenRouter');
 app.use("/api/v1.0/friends/", userTokenRouter);
 app.use("/api/v1.0/messages/", userTokenRouter);
-
-// Rutas app
-require("./routes/users.js")(app, usersRepository);
-require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
-require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
-
-require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
-require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository, messagesRepository);
+app.use("/users/admin/list", adminSessionRouter);
+app.use("/users/delete", adminSessionRouter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -90,6 +85,23 @@ app.use(cookieParser());
 
 // Directorio público del proyecto
 app.use(express.static(path.join(__dirname, 'public')));
+
+const userTokenRouter = require('./api/routes/userTokenRouter');
+app.use("/api/v1.0/friends/", userTokenRouter);
+app.use("/api/v1.0/messages/", userTokenRouter);
+
+// Rutas app
+require("./routes/users.js")(app, usersRepository);
+require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
+require("./routes/friendships.js")(app, friendshipsRepository, usersRepository);
+// SOLO PARA TESTS!!!!!!!!!!!!!!!!!
+require("./routes/bd.js")(app, usersRepository, friendshipsRepository, postsRepository)
+
+require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
+require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository, messagesRepository);
+
+// Usar rutas index
+app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

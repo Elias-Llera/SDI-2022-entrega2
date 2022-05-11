@@ -7,9 +7,6 @@ module.exports = function (app, usersRepository) {
         let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
         let options = {sort: {email: 1}};
 
-        console.log(req);
-        console.log(req.query.search);
-
         //For filtering
         if (req.query.search != null && typeof (req.query.search) != "undefined" && req.query.search != "") {
             filter = {
@@ -48,10 +45,79 @@ module.exports = function (app, usersRepository) {
                 }
                 res.render("users/list.twig", response);
             })
-            .catch( error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Ha ocurrido un error al listar los usuarios." +
+                    "&messageType=alert-danger ")
             );
     });
+
+
+    app.get("/users/admin/list", function (req, res) {
+        let filter = {};
+        let options = {sort: {email: 1}};
+
+        usersRepository.getUsers(filter, options)
+            .then(result => {
+
+                let response = {
+                    users: result.users,
+                    session: req.session,
+                    search: req.query.search
+                }
+                res.render("users/admin/list.twig", response);
+            })
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Ha ocurrido un error al listar los usuarios." +
+                    "&messageType=alert-danger ")
+            );
+    });
+
+    app.get('/users/delete', function (req, res) {
+        var list = [];
+
+        if (req.query.deleteList != null && req.query.deleteList != undefined) {
+            if (!Array.isArray(req.query.deleteList)) {
+                list[0] = req.query.deleteList;
+            } else {
+                list = req.query.deleteList;
+            }
+
+            for (const listElement of list) {
+                deleteUser(listElement, res);
+            }
+        }
+
+        usersRepository.getUsers({}, { sort: {email: 1}})
+            .then(result => {
+
+                let response = {
+                    users: result.users,
+                    session: req.session,
+                    search: req.query.search
+                }
+                res.redirect("/users/admin/list");
+            })
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Ha ocurrido un error al obtener los usuarios." +
+                    "&messageType=alert-danger ")
+            );
+    });
+
+    function deleteUser(userId, res) {
+        usersRepository.deleteUser({_id: ObjectId(userId)}, {}).then(result => {
+            if (result == null || result.deletedCount == 0) {
+                res.write("No se ha podido eliminar el registro");
+            }
+            res.end();
+        }).catch( () => {
+            res.redirect("/" +
+                "?message=Ha ocurrido un error al eliminar usuarios." +
+                "&messageType=alert-danger ")
+        });
+    }
 
     /**
      *
@@ -95,6 +161,7 @@ module.exports = function (app, usersRepository) {
     })
 
     app.post('/users/signup', async function (req, res) {
+
         let securePassword = app.get("crypto").createHmac('sha256', app.get('clave'))
             .update(req.body.password).digest('hex');
         let user = {
@@ -104,7 +171,7 @@ module.exports = function (app, usersRepository) {
             surname: req.body.surname,
             rol: "STANDARD"
         }
-        await validateUser(user).then(result => {
+        await validateUser(user,req.body.password,req.body.passwordConfirm).then(result => {
 
 
             if (result.length > 0) {
@@ -123,7 +190,7 @@ module.exports = function (app, usersRepository) {
         });
     })
 
-    async function validateUser(user) {
+    async function validateUser(user,originalPassword,confirmPassword) {
         let errors = [];
         if (user.email == null || user.email == "") {
             errors.push("El email es obligatorio");
@@ -136,6 +203,9 @@ module.exports = function (app, usersRepository) {
         }
         if (user.surname == null || user.surname == "") {
             errors.push("El apellido es obligatorio");
+        }
+        if(originalPassword != confirmPassword){
+            errors.push("Las contraseñas no coinciden");
         }
         //check that the email format is correct
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

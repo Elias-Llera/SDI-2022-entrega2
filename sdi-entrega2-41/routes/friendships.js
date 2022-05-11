@@ -38,12 +38,16 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         }
                         res.render("friendships/friends.twig", response);
                     })
-                    .catch( error =>
-                        res.send("Error: " + error)
+                    .catch( () =>
+                        res.redirect("/" +
+                            "?message=Se ha producido un error al buscar los usuarios" +
+                            "&messageType=alert-danger ")
                     );
             })
-            .catch( error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Se ha producido un error al buscar los amigos" +
+                    "&messageType=alert-danger ")
             );
     });
 
@@ -82,12 +86,16 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                         }
                         res.render("friendships/invitations.twig", response);
                     })
-                    .catch( error =>
-                        res.send("Error: " + error)
+                    .catch( () =>
+                        res.redirect("/" +
+                            "?message=Se ha producido un error al buscar los usuarios" +
+                            "&messageType=alert-danger ")
                     );
             })
-            .catch( error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Se ha producido un error al buscar las invitaciones" +
+                    "&messageType=alert-danger ")
             );
     });
 
@@ -109,14 +117,20 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                             res.redirect("/users/list")
                         })
                         .catch( () =>
-                            res.send("You cannot send an invite to this user.")
+                            res.redirect("/" +
+                                "?message=Se ha producido un error al crear la invitación de amistad" +
+                                "&messageType=alert-danger ")
                         );
                 } else {
-                    res.send("You cannot send an invite to this user.")
+                    res.redirect("/" +
+                        "?message=No puedes enviar una invitación a este usuario" +
+                        "&messageType=alert-danger ")
                 }
             })
-            .catch(error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Se ha producido un error al crear la invitación" +
+                    "&messageType=alert-danger ")
             );
     });
 
@@ -145,12 +159,16 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                 friendshipsRepository.updateFriendship(friendship, filter, {})
                     .then( () => {
                         res.redirect("/friendships/friends")})
-                    .catch(error =>
-                        res.send("Error: " + error)
+                    .catch( () =>
+                        res.redirect("/" +
+                            "?message=Se ha producido un error al aceptar la petición" +
+                            "&messageType=alert-danger ")
                     );
             })
-            .catch(error =>
-                res.send("Error: " + error)
+            .catch( () =>
+                res.redirect("/" +
+                    "?message=Se ha producido un error buscar la petición" +
+                    "&messageType=alert-danger ")
             );
     });
 
