@@ -8,7 +8,7 @@ module.exports = function (app, usersRepository, friendshipsRepository, postsRep
 
         let users = new Array();
         let name = "";
-        for(i=1; i++; i<16) {
+        for(i=1; i <16; i++) {
 
             if(i < 10)
                 name = "user0"+i
