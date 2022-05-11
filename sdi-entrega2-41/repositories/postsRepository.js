@@ -111,7 +111,7 @@ module.exports = {
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
-            await postsCollection.remove({});
+            await postsCollection.remove();
             await postsCollection.insertMany(posts);
             return true;
         } catch(error){
