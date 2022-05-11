@@ -37,7 +37,7 @@
                             <a class="dropdown-item" href="/users/list">Listar Usuarios</a>
                             <br>
                             {% if session.user != null and session.user == "admin@email.com" %}
-                                <a class="dropdown-item" href="/users/admin/list">Borrar Usuarios</a>
+                                <a class="dropdown-item" id="adminList" href="/users/admin/list">Borrar Usuarios</a>
                             {% endif %}
                         </div>
 

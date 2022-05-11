@@ -19,13 +19,16 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
     //static String Geckodriver = "C:\\Dev\\tools\\selenium\\geckodriver-v0.30.0-win64.exe";    //Común a Windows y a MACOSX
     //Común a Windows y a MACOSX
-    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
     //static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
-    static String Geckodriver = "C:\\Users\\danie\\Downloads\\geckodriver-v0.30.0-win64\\geckodriver-v0.30.0-win64.exe";
+    //static String Geckodriver = "C:\\Users\\danie\\Downloads\\geckodriver-v0.30.0-win64\\geckodriver-v0.30.0-win64.exe";
+
+    //RUTAS DE OSCAR
+    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
 
     static final String URL = "http://localhost:3000";
     static WebDriver driver = getDriver(PathFirefox, Geckodriver);
-
 
     public static WebDriver getDriver(String PathFirefox, String Geckodriver) {
         System.setProperty("webdriver.firefox.bin", PathFirefox);
@@ -224,16 +227,14 @@ class NotaneitorApplicationTests {
         PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
         //Comprobamos que hemos iniciado sesión correctamente
-        List<WebElement> result = PO_LoginView.checkElementByKey(driver, "user.list.users", PO_Properties.getSPANISH());
-        String checkText = PO_HomeView.getP().getString("user.list.users", PO_Properties.getSPANISH());
-        Assertions.assertEquals(checkText , result.get(0).getText());
+        List<WebElement> result = PO_LoginView.checkElementBy(driver, "text", "Listado de usuarios");
+        Assertions.assertEquals("Listado de usuarios", result.get(0).getText());
 
         //Nos desconectamos
         PO_HomeView.clickOption(driver, "logout", "class", "btn btn-primary");
         //Comprobamos que se redirige a la página de inicio de sesión
-        result = PO_LoginView.checkElementByKey(driver, "nav.login.message", PO_Properties.getSPANISH() );
-        checkText = PO_HomeView.getP().getString("nav.login.message", PO_Properties.getSPANISH());
-        Assertions.assertEquals(checkText , result.get(0).getText());
+        result = PO_LoginView.checkElementBy(driver, "text", "Identificación de usuario");
+        Assertions.assertEquals("Identificación de usuario", result.get(0).getText());
     }
 
     //[Prueba10] Comprobar que el botón cerrar sesión no está visible si el usuario no está autenticado
@@ -249,55 +250,89 @@ class NotaneitorApplicationTests {
         Assertions.assertTrue(notFound);
     }
 
-    //P14. Loguearse como profesor y Agregar Nota A2.
-    //P14. Esta prueba podría encapsularse mejor ...
+    //[Prueba11] Mostrar el listado de usuarios y comprobar que se muestran todos los que existen en el sistema
     @Test
-    @Order(16)
-    public void PR14() {
-        //Vamos al formulario de login.
-        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
-            PO_LoginView.fillLoginForm(driver, "99999993D", "123456");
-        //Cmmprobamos que entramos en la pagina privada del Profesor
-        PO_View.checkElementBy(driver, "text", "99999993D");
+    @Order(13)
+    public void PR11() {
+        //Iniciamos sesión como administradores
+        PO_LoginView.logAsAdmin(driver);
 
-        //Pinchamos en la opción de menu de Notas: //li[contains(@id, 'marks-menu')]/a
-        List<WebElement> elements = PO_View.checkElementBy(driver, "free", "//li[contains(@id, 'marks-menu')]/a");
-        elements.get(0).click();
+        //Vamos a la vistado de listado de administrador users/admin/list
+        PO_PrivateView.clickSubMenuOption(driver, "usersDropdown", "adminList");
 
-        //Esperamos a aparezca la opción de añadir nota: //a[contains(@href, 'mark/add')]
-        elements = PO_View.checkElementBy(driver, "free", "//a[contains(@href, 'mark/add')]");
-        //Pinchamos en agregar Nota.
-        elements.get(0).click();
-
-        //Ahora vamos a rellenar la nota. //option[contains(@value, '4')]
-        String checkText = "Nota Nueva 3";
-        PO_PrivateView.fillFormAddMark(driver, 3, checkText, "8");
-        //Esperamos a que se muestren los enlaces de paginación la lista de notas
-        elements = PO_View.checkElementBy(driver, "free", "//a[contains(@class, 'page-link')]");
-        //Nos vamos a la última página
-        elements.get(3).click();
-        //Comprobamos que aparece la nota en la pagina
-        elements = PO_View.checkElementBy(driver, "text", checkText);
-        Assertions.assertEquals(checkText, elements.get(0).getText());
-
-        //Ahora nos desconectamos comprobamas que aparece el menu de registrarse
-        String loginText = PO_HomeView.getP().getString("signup.message", PO_Properties.getSPANISH());
-        PO_PrivateView.clickOption(driver, "logout", "text", loginText);
+        // Comprobamos que se muestra correctamente
+        PO_ListUsersView.checkUsersAreListedForAdmin(driver, 17);
     }
 
-   /* //PRN. Loguearse como profesor, vamos a la ultima página y Eliminamos la Nota Nueva 1.
-    //PRN. Ver la lista de Notas.
-    @Test
-    @Order(17)
-    public void PR15() {
-        //Vamos al formulario de logueo.
-        //PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
-        //PO_LoginView.fillLoginForm(driver, "99999993D", "123456");
 
-        //Comprobamos que entramos en la pagina privada del Profesor
-        //PO_View.checkElementBy(driver, "text", "99999993D");
-        //Pinchamos en la opción de menu de Notas: //li[contains(@id, 'marks-menu')]/a
-    }*/
+    //[Prueba12] Ir a la lista de usuarios, borrar el primer usuario de la lista, comprobar que la lista se actualiza y dicho usuario desaparece.
+    @Test
+    @Order(14)
+    public void PR12() {
+        //Iniciamos sesión como administradores
+        PO_LoginView.logAsAdmin(driver);
+
+        //Marcamos la primera checkbox
+        PO_UserListView.markCheckboxes(driver, new int[]{0});
+
+        //Pulsamos el botón de borrar
+        List<WebElement> languageButton = SeleniumUtils.waitLoadElementsBy(driver, "id", "btnDelete", PO_View.getTimeout());
+        languageButton.get(0).click();
+
+        // Comprobamos que se muestra correctamente. Debe haber uno menos porque lo acabamos de eliminar
+        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User0");
+        Assertions.assertTrue(notFound);
+        PO_ListUsersView.checkUsersAreListedForAdmin(driver, 15);
+    }
+    //[Prueba13] Ir a la lista de usuarios, borrar el último usuario de la lista, comprobar que la lista se actualiza y dicho usuario desaparece.
+    @Test
+    @Order(15)
+    public void PR13() {
+        //Iniciamos sesión como administradores
+        PO_LoginView.logAsAdmin(driver);
+        //Vamos a la vista /admin/list
+        PO_PrivateView.clickSubMenuOption(driver, "admins-menu", "adminList");
+
+        //Marcamos la última checkbox
+        int position = PO_UserListView.checkElementBy(driver, "id", "cbDelete").size() - 1;
+        PO_UserListView.markCheckboxes(driver, new int[]{position});
+
+        //Pulsamos el botón de borrar
+        PO_UserListView.clickOption(driver, "Eliminar", "id", "btnDelete");
+
+        // Comprobamos que se muestra correctamente. Debe haber uno menos porque lo acabamos de eliminar
+        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User0");
+        Assertions.assertTrue(notFound);
+        PO_ListUsersView.checkUsersAreListedForAdmin(driver, 15);
+    }
+
+    //[Prueba14] Ir a la lista de usuarios, borrar 3 usuarios, comprobar que la lista se actualiza y dichos usuarios desaparecen.
+    @Test
+    @Order(14)
+    public void PR14() {
+        //Iniciamos sesión como administradores
+        PO_LoginView.logAsAdmin(driver);
+
+        //Vamos a la vista /admin/list
+        PO_PrivateView.clickSubMenuOption(driver, "admins-menu", "adminList");
+
+        //Marcamos las posiciones 3, 7 y 9: por ejemplo
+        PO_UserListView.markCheckboxes(driver, new int[]{3, 7, 9});
+        //Pulsamos el botón de borrar
+        //Pulsamos el botón de borrar
+        PO_UserListView.clickOption(driver, "Eliminar", "id", "btnDelete");
+
+        //Comprobamos que el número de usuarios es el correcto
+        PO_ListUsersView.checkUsersAreListedForAdmin(driver, 13);
+
+        //Comprobamos que User04, User08 y User10 desaparecieron
+        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User04");
+        Assertions.assertTrue(notFound);
+        notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User08");
+        Assertions.assertTrue(notFound);
+        notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User10");
+        Assertions.assertTrue(notFound);
+    }
 
     //[Prueba15] Mostrar el listado de usuarios y comprobar que se muestran todos los que existen en el sistema,
     //excepto el propio usuario y aquellos que sean Administradores
@@ -340,23 +375,23 @@ class NotaneitorApplicationTests {
     @Test
     @Order(16)
     public void PR16() {
-        //Nos logeamos con usuario estandar
-        PO_LoginView.login(driver, "user01@email.com", "user01");
-        //Vamos a la vista /user/list
-        PO_PrivateView.clickSubMenuOption(driver, "userDropdown", "userList");
+        //Vamos al formulario de inicio de sesión
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
         //Realizamos una busqueda con el campo vacio
         PO_UserListView.executeSearch(driver, "");
 
         //Presionamos el boton de ultima pagina
-        List<WebElement> lastPageBtn = SeleniumUtils.waitLoadElementsBy(driver, "text", "Última",
+        List<WebElement> lastPageBtn = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
                 PO_View.getTimeout());
-        lastPageBtn.get(0).click();
+        lastPageBtn.get(2).click();
 
         //Comprobamos que la página es la 3
         List<WebElement> pageNumbers = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
                 PO_View.getTimeout());
-        Assertions.assertEquals(4, pageNumbers.size());
+        Assertions.assertEquals(3, pageNumbers.size());
         Assertions.assertEquals("2", pageNumbers.get(1).getText());
         Assertions.assertEquals("3", pageNumbers.get(2).getText());
 
@@ -371,24 +406,21 @@ class NotaneitorApplicationTests {
     @Test
     @Order(17)
     public void PR17() {
-        //Nos logeamos como administradores
-        PO_LoginView.login(driver, "user01@email.com", "user01");
-
-        //Vamos a la vista /user/list
-        PO_PrivateView.clickSubMenuOption(driver, "userDropdown", "userList");
+        //Vamos al formulario de inicio de sesión
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
         //Realizamos una busqueda con un campo que no nos proporcione ningun resultado
-        PO_UserListView.executeSearch(driver, "wefmeifmoiwef");
+        PO_UserListView.executeSearch(driver, "wefmeiffsdfsdfdsfsdfsdfsdfdsfdsfdsmoiwef");
 
-        //Comprobamos que la página es la 1
-        List<WebElement> pageNumbers = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
-                PO_View.getTimeout());
-        Assertions.assertEquals(3, pageNumbers.size());
-        Assertions.assertEquals("1", pageNumbers.get(1).getText());
+        //Comprobamos que no hay paginas
+        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "free", "page-link");
+        //Comprobamos no esta visible este elemento
+        Assertions.assertEquals(true, notFound);
 
-        //Y que hay 5 usuarios
-        boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "free", "//tbody/tr");
-
+        //Y que hay 0 usuarios
+        notFound = PO_HomeView.checkInvisibilityOfElement(driver, "free", "//tbody/tr");
         //Comprobamos no esta visible este elemento
         Assertions.assertEquals(true, notFound);
     }
@@ -399,22 +431,23 @@ class NotaneitorApplicationTests {
     @Test
     @Order(18)
     public void PR18() {
-        //Nos logeamos como usuario
-        PO_LoginView.login(driver, "user01@email.com", "user01");
+        //Vamos al formulario de inicio de sesión
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
-        //Vamos a la vista /user/list
-        PO_PrivateView.clickSubMenuOption(driver, "userDropdown", "userList");
+        //Realizamos una busqueda con el campo vacio
+        PO_UserListView.executeSearch(driver, "");
 
-        //Realizamos una busqueda con el campo "01"
-        String searchText = "01";
-        PO_UserListView.executeSearch(driver, searchText);
+        //Realizamos una busqueda con el campo "1"
+        PO_UserListView.executeSearch(driver, "1");
 
         //Comprobamos que los resultados son los esperados
-        PO_UserListView.checkElementBy(driver, "text", "User010");
-        PO_UserListView.checkElementBy(driver, "text", "User011");
-        PO_UserListView.checkElementBy(driver, "text", "User012");
-        PO_UserListView.checkElementBy(driver, "text", "User013");
-        PO_UserListView.checkElementBy(driver, "text", "User014");
+        PO_UserListView.checkElementBy(driver, "text", "user01");
+        PO_UserListView.checkElementBy(driver, "text", "user10");
+        PO_UserListView.checkElementBy(driver, "text", "user11");
+        PO_UserListView.checkElementBy(driver, "text", "user12");
+        PO_UserListView.checkElementBy(driver, "text", "user13");
 
         //Y que hay 5 usuarios
         List<WebElement> userList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr",
@@ -424,9 +457,18 @@ class NotaneitorApplicationTests {
         //Comprobamos que estamos en la página 1
         List<WebElement> pageNumbers = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
                 PO_View.getTimeout());
-        Assertions.assertEquals(4, pageNumbers.size());
-        Assertions.assertEquals("1", pageNumbers.get(1).getText());
-        Assertions.assertEquals("2", pageNumbers.get(2).getText());
+        Assertions.assertEquals(2, pageNumbers.size());
+        Assertions.assertEquals("1", pageNumbers.get(0).getText());
+        Assertions.assertEquals("2", pageNumbers.get(1).getText());
+
+        //Vamos a la segunda pagina
+        List<WebElement> lastPageBtn = SeleniumUtils.waitLoadElementsBy(driver, "class", "page-link",
+                PO_View.getTimeout());
+        lastPageBtn.get(1).click();
+
+        //Comprobamos que los resultados son los esperados
+        PO_UserListView.checkElementBy(driver, "text", "user14");
+        PO_UserListView.checkElementBy(driver, "text", "user15");
     }
 
 }
