@@ -130,7 +130,7 @@ module.exports = {
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
-            await friendshipsCollection.remove({});
+            await friendshipsCollection.remove();
             await friendshipsCollection.insertMany(friendships);
             return true;
         } catch(error){
