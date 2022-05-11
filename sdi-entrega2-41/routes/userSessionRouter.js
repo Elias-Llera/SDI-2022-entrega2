@@ -4,10 +4,19 @@ const userSessionRouter = express.Router();
 userSessionRouter.use(function(req, res, next) {
     console.log("routerUsuarioSession");
     if ( req.session.user ) {
-        // dejamos correr la petición
-        next();
+        usersRepository.findUser({ email: req.session.user}, {}).then(result =>
+        {
+            if(result.rol == "ADMIN") {
+                console.log("EL piti admin")
+                res.redirect("/users/admin/list");
+
+            } else {
+                next();
+            }
+        }).catch(error => res.redirect("users/login"));
+
     } else {
-        res.redirect("/users/login");
+       res.redirect("/users/login");
     }
 });
 module.exports = userSessionRouter;

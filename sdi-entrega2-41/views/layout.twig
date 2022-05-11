@@ -34,10 +34,10 @@
                            aria-expanded="false">Usuarios
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/users/list">Listar Usuarios</a>
-                            <br>
                             {% if session.user != null and session.user == "admin@email.com" %}
-                                <a class="dropdown-item" href="/users/admin/list">Borrar Usuarios</a>
+                                <a class="dropdown-item" id="adminList" href="/users/admin/list">Borrar Usuarios</a>
+                            {% else %}
+                                <a class="dropdown-item" href="/users/list">Listar Usuarios</a>
                             {% endif %}
                         </div>
 
@@ -61,7 +61,8 @@
                            aria-expanded="false">Amistades
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a id="invitationsMenu"class="dropdown-item" href="/friendships/invitations">Peticiones de amistad</a>
+                            <a id="invitationsMenu" class="dropdown-item" href="/friendships/invitations">Peticiones de
+                                amistad</a>
                             <br>
                             <a id="friendsMenu" class="dropdown-item" href="/friendships/friends">Amigos</a>
                         </div>

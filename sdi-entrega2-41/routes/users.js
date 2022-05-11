@@ -1,7 +1,9 @@
+const {ObjectId} = require("mongodb");
+
 module.exports = function (app, usersRepository) {
 
     /**
-     *
+     * Funcionalidad listado de usuarios con busqueda y paginacion
      */
     app.get("/users/list", function (req, res) {
         let filter = {rol: {$not: {$eq: "ADMIN"}}, email: {$not: {$eq: req.session.user}}};
@@ -52,7 +54,9 @@ module.exports = function (app, usersRepository) {
             );
     });
 
-
+    /**
+     * Listado de usuarios para administrador
+     */
     app.get("/users/admin/list", function (req, res) {
         let filter = {};
         let options = {sort: {email: 1}};
@@ -74,6 +78,9 @@ module.exports = function (app, usersRepository) {
             );
     });
 
+    /**
+     * Funcionalidad borrado de usuarios
+     */
     app.get('/users/delete', function (req, res) {
         var list = [];
 
@@ -89,23 +96,14 @@ module.exports = function (app, usersRepository) {
             }
         }
 
-        usersRepository.getUsers({}, { sort: {email: 1}})
-            .then(result => {
-
-                let response = {
-                    users: result.users,
-                    session: req.session,
-                    search: req.query.search
-                }
-                res.redirect("/users/admin/list");
-            })
-            .catch( () =>
-                res.redirect("/" +
-                    "?message=Ha ocurrido un error al obtener los usuarios." +
-                    "&messageType=alert-danger ")
-            );
+        res.redirect("/users/admin/list");
     });
 
+    /**
+     * Funcion que borra un usuario de la base de datos
+     * @param userId: _id del usuario que queremos borrar
+     * @param res
+     */
     function deleteUser(userId, res) {
         usersRepository.deleteUser({_id: ObjectId(userId)}, {}).then(result => {
             if (result == null || result.deletedCount == 0) {
@@ -120,14 +118,14 @@ module.exports = function (app, usersRepository) {
     }
 
     /**
-     *
+     * Funcionalidad GET de login
      */
     app.get('/users/login', function (req, res) {
         res.render("login.twig");
     });
 
     /**
-     *
+     * POST de login
      */
     app.post('/users/login',function (req,res) {
         let securePassword = app.get("crypto").createHmac('sha256',app.get('clave'))
@@ -156,10 +154,16 @@ module.exports = function (app, usersRepository) {
     });
 
 
+    /**
+     * Registro de usuarios GET
+     */
     app.get('/users/signup', function (req, res) {
         res.render("signup.twig");
     })
 
+    /**
+     * Registro de usuarios POST
+     */
     app.post('/users/signup', async function (req, res) {
 
         let securePassword = app.get("crypto").createHmac('sha256', app.get('clave'))
