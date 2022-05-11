@@ -26,7 +26,7 @@ module.exports = {
         }
     },
 
-    getUsers: async function (filter, options){
+
     /**
      * @param filter
      * @param options
