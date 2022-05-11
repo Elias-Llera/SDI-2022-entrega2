@@ -228,7 +228,7 @@ class NotaneitorApplicationTests {
         //Rellenamos el formulario.
         PO_SignUpView.fillForm(driver, "uo273649@uniovi.es", "José", "Pérez", "77777", "77777");
         //Comprobamos que entramos en la sección privada y nos nuestra el texto a buscar
-        String checkText = "Bienvenido a nuestra red social";
+        String checkText = "Nuevo usuario registrado";
         List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
 
         Assertions.assertEquals(checkText, result.get(0).getText());
@@ -407,8 +407,12 @@ class NotaneitorApplicationTests {
     @Test
     @Order(14)
     public void PR12() {
+
         //Iniciamos sesión como administradores
         PO_LoginView.logAsAdmin(driver);
+
+        //Vamos a la vista /admin/list
+        PO_PrivateView.clickSubMenuOption(driver, "usersDropdown", "adminList");
 
         //Marcamos la primera checkbox
         PO_UserListView.markCheckboxes(driver, new int[]{0});
@@ -421,15 +425,17 @@ class NotaneitorApplicationTests {
         boolean notFound = PO_HomeView.checkInvisibilityOfElement(driver, "text", "User0");
         Assertions.assertTrue(notFound);
         PO_ListUsersView.checkUsersAreListedForAdmin(driver, 15);
+
     }
     //[Prueba13] Ir a la lista de usuarios, borrar el último usuario de la lista, comprobar que la lista se actualiza y dicho usuario desaparece.
     @Test
     @Order(15)
     public void PR13() {
+
         //Iniciamos sesión como administradores
         PO_LoginView.logAsAdmin(driver);
         //Vamos a la vista /admin/list
-        PO_PrivateView.clickSubMenuOption(driver, "admins-menu", "adminList");
+        PO_PrivateView.clickSubMenuOption(driver, "sersDropdown", "adminList");
 
         //Marcamos la última checkbox
         int position = PO_UserListView.checkElementBy(driver, "id", "cbDelete").size() - 1;
@@ -448,11 +454,12 @@ class NotaneitorApplicationTests {
     @Test
     @Order(14)
     public void PR14() {
+
         //Iniciamos sesión como administradores
         PO_LoginView.logAsAdmin(driver);
 
         //Vamos a la vista /admin/list
-        PO_PrivateView.clickSubMenuOption(driver, "admins-menu", "adminList");
+        PO_PrivateView.clickSubMenuOption(driver, "sersDropdown", "adminList");
 
         //Marcamos las posiciones 3, 7 y 9: por ejemplo
         PO_UserListView.markCheckboxes(driver, new int[]{3, 7, 9});
