@@ -1,0 +1,127 @@
+<div id="widget-chat" class="container">
+    <div id="chat">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>My friend</th>
+                <th class="text-right">Me</th>
+            </tr>
+            </thead>
+            <tbody id="chatTableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="box-footer">
+        <div class="input-group">
+            <input
+                    type="text"
+                    id="message"
+                    name="message"
+                    placeholder="Type Message..."
+                    class="form-control"
+            >
+            <span class="input-group-btn">
+                <button type="button" id="button-message" class="btn btn-primary btn-flat">Send</button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.history.pushState("", "", "/apiclient/client.html?w=chat");
+
+    // En caso de que no haya sido pasado un amigo, entonces volveremos a la vista de amigos
+    if (selectedFriendEmail === undefined)
+        $("#main-container").load("widget-friends.html");
+
+    function updateMessagesTable(messages) {
+        // El mecanismos para crear el chat será similar al utilizado para crear la tabla de amigos
+        $("#chatTableBody").empty(); // Vaciamos la tabla
+        // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
+        // Deberemos preparar dos formatos: si es un amigo el que escribe...
+        const isAMessageFromFriend = (message) =>  `
+                <tr id="${message.date}">
+                    <td>${message.text}</td>
+                    <td></td>
+                </tr>
+            `;
+        // Si soy yo el que ha escrito el mensaje...
+        const isAMessageFromMe = (message) =>  `
+                <tr id="${message.date}">
+                    <td></td>
+                    <td class="text-right">${message.text}</td>
+                </tr>
+            `;
+        // Para cada mensaje, insertamos un nuevo elemento en la tabla
+        if (messages === undefined) { // En caso de que no tengamos mensajes, informamos al usuario de que esto es así
+            if (document.getElementById("login-error") === null) // Comprobamos que no se ha informado anteriormente
+                $("#chat")
+                    .prepend(`
+                        <div class='alert alert-info mt-1' id="no-messages">
+                        El chat con el usuario <em>${selectedFriendEmail}</em> está vacío.
+                        </div>
+                    `);
+        } else {
+            $("#no-messages").remove(); // eliminamos el mensaje de información
+            // Mostramos los mensajes dependiendo de quién lo envíe
+            messages.forEach((message) => {
+                if (message.sender === selectedFriendEmail)
+                    $("#chatTableBody").append(isAMessageFromFriend(message));
+                else
+                    $("#chatTableBody").append(isAMessageFromMe(message));
+            });
+        }
+    }
+
+    // Lo hago aquí también porque voy a cambiar ciertas cosas de cómo se ejecuta la petición :)
+    function loadMessagesForChat(user) {
+        $.ajax({
+            url: URLbase + "/messages",
+            type: "POST",
+            dataType: 'json',
+            data: {
+                user: user,
+            },
+            headers: {
+                "token": token,
+            },
+            success: function (response) {
+                // Recargamos los mensajes que han demostrarse en pantalla :)
+                updateMessagesTable(response.messages);
+            },
+            error: function (error) {
+                // VOLVEMOS a la pantalla de inicio de sesión
+                alert("Ha ocurrido un error :("); // tras haber informado al usuario de que un error ha ocurrido
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    }
+
+    // Ejecutamos la función cada segundo :)
+    var refreshEachSecond = window.setInterval(() => {
+        loadMessagesForChat(selectedFriendEmail); // recargamos los mensajes...
+    }, 1000);
+
+    $("#button-message").click(function () {
+        $.ajax({
+            url: URLbase + "/messages/insert",
+            type: "POST",
+            dataType: 'json',
+            data: {
+                receiver: selectedFriendEmail,
+                text: $("#message").val(),
+            },
+            headers: {"token": token},
+            success: function (response) {
+                console.log("Mensaje: " + $("#message").val() + ". Enviado con éxito!");
+                $("#message").val("");
+            },
+            error: function (error) {
+                console.log(error);
+                clearInterval(refreshEachSecond); // debemos parar de ejecutar esto constantemente
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    });
+
+</script>
