@@ -123,9 +123,7 @@ module.exports = {
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);
             await usersCollection.remove({});
-            for (let user of users){
-                await usersCollection.insertOne(user);
-            }
+            await usersCollection.insertMany(users);
             return true;
         } catch(error){
             throw error;

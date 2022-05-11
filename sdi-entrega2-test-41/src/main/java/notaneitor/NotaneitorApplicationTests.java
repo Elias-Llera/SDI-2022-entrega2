@@ -54,6 +54,7 @@ class NotaneitorApplicationTests {
     //Antes de cada prueba se navega al URL home de la aplicación
     @BeforeEach
     public void setUp() {
+
         driver.navigate().to(URL);
     }
 

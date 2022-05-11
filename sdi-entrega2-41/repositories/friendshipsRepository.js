@@ -131,9 +131,7 @@ module.exports = {
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
             await friendshipsCollection.remove({});
-            for (let friendship of friendships){
-                await friendshipsCollection.insertOne(friendship);
-            }
+            await friendshipsCollection.insertMany(friendships);
             return true;
         } catch(error){
             throw error;
