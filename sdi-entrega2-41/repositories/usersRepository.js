@@ -1,5 +1,4 @@
 module.exports = {
-
     mongoClient: null,
     app: null,
 
@@ -27,8 +26,8 @@ module.exports = {
         }
     },
 
+    getUsers: async function (filter, options){
     /**
-     *
      * @param filter
      * @param options
      * @returns {Promise<*>}
@@ -46,7 +45,6 @@ module.exports = {
     },
 
     /**
-     *
      * @param filter
      * @param options
      * @param page
@@ -133,7 +131,4 @@ module.exports = {
             throw error;
         }
     }
-
-
-
 };
