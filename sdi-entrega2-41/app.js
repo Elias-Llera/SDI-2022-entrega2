@@ -51,24 +51,17 @@ const friendshipsRepository = require("./repositories/friendshipsRepository.js")
 friendshipsRepository.init(app, MongoClient);
 let postsRepository = require("./repositories/postsRepository.js");
 postsRepository.init(app, MongoClient);
+let messagesRepository = require("./repositories/messagesRepository.js");
+messagesRepository.init(app, MongoClient);
 
 // Ruta index
 let indexRouter = require('./routes/index');
 let userSessionRouter = require('./routes/userSessionRouter');
+let adminSessionRouter = require('./routes/adminSessionRouter');
 
 app.use("/users/list", userSessionRouter);
-
-const userTokenRouter = require('./api/routes/userTokenRouter');
-app.use("/api/v1.0/friends/", userTokenRouter);
-app.use("/api/v1.0/messages/", userTokenRouter);
-
-// Rutas app
-require("./routes/users.js")(app, usersRepository);
-require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
-require("./routes/friendships.js")(app, friendshipsRepository, usersRepository)
-
-require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
-require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
+app.use("/users/admin/list", adminSessionRouter);
+app.use("/users/delete", adminSessionRouter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -80,7 +73,7 @@ app.use(logger('dev'));
 // Uso de json para las respuestas
 app.use(express.json());
 
-// Codificacion de urls
+// Codificación de urls
 app.use(express.urlencoded({ extended: false }));
 
 // Uso de cookies
@@ -88,6 +81,20 @@ app.use(cookieParser());
 
 // Directorio público del proyecto
 app.use(express.static(path.join(__dirname, 'public')));
+
+const userTokenRouter = require('./api/routes/userTokenRouter');
+app.use("/api/v1.0/friends/", userTokenRouter);
+app.use("/api/v1.0/messages/", userTokenRouter);
+
+// Rutas app
+require("./routes/users.js")(app, usersRepository);
+require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
+require("./routes/friendships.js")(app, friendshipsRepository, usersRepository);
+// SOLO PARA TESTS!!!!!!!!!!!!!!!!!
+require("./routes/bd.js")(app, usersRepository, friendshipsRepository, usersRepository)
+
+require("./api/routes/UsersAPIv1.0.js")(app, usersRepository, friendshipsRepository);
+require("./api/routes/MessagesAPIv1.0.js")(app, friendshipsRepository,messagesRepository);
 
 // Usar rutas index
 app.use('/', indexRouter);

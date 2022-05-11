@@ -8,6 +8,12 @@ module.exports = {
         this.app = app;
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     getFriendships: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -20,6 +26,13 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @param page
+     * @returns {Promise<{total: *, friendships: *}>}
+     */
     getFriendshipsPg: async function (filter, options, page) {
         try {
             const limit = 4;
@@ -36,6 +49,12 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     findFriendship: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -48,6 +67,11 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param friendship
+     * @returns {Promise<any>}
+     */
     insertFriendship: async function (friendship) {
         try{
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -61,6 +85,12 @@ module.exports = {
         }
     },
 
+    /**
+     *
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
     deleteFriendship: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
@@ -72,5 +102,42 @@ module.exports = {
             throw (error);
         }
     },
+
+    /**
+     *
+     * @param newFriendship
+     * @param filter
+     * @param options
+     * @returns {Promise<*>}
+     */
+    updateFriendship: async function(newFriendship, filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'friendships';
+            const friendshipCollection = database.collection(collectionName);
+            return await friendshipCollection.updateOne(filter, {$set: newFriendship}, options);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    /**
+     */
+    resetFriendships: async function (friendships) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'friendships';
+            const friendshipsCollection = database.collection(collectionName);
+            await friendshipsCollection.remove({});
+            for (let friendship of friendships){
+                await friendshipsCollection.insertOne(friendship);
+            }
+            return true;
+        } catch(error){
+            throw error;
+        }
+    }
 
 };
