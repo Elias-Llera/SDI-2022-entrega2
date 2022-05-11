@@ -31,8 +31,31 @@ module.exports = {
         }
     },
 
-    /**
-     */
+    findMessage: async function (filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'messages';
+            const messagesCollection = database.collection(collectionName);
+            return await messagesCollection.findOne(filter, options);
+        } catch (error) {
+            throw (error);
+        }
+    },
+
+    readMessage: async function (newMsg, filter, options) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'messages';
+            const messagesCollection = database.collection(collectionName);
+            const result = await messagesCollection.updateOne(filter, {$set: newMsg}, options);
+            return result;
+        } catch (error) {
+            throw (error)
+        }
+    },
+  
     resetMessages: async function (messages) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));

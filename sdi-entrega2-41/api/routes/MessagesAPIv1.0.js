@@ -1,5 +1,6 @@
 module.exports = function (app, friendshipsRepository, messagesRepository) {
     const {decode} = require("jsonwebtoken");
+    const {ObjectId} = require("mongodb");
 
     app.post('/api/v1.0/messages/insert', function (req, res) {
         var message = req.body;
@@ -33,7 +34,7 @@ module.exports = function (app, friendshipsRepository, messagesRepository) {
     app.post('/api/v1.0/messages', function (req, res) {
         let user1 = res.user;
         let user2 = req.body.user;
-
+      
         // En caso de que no se encuentre usuario, estamos hablando de que la operación no se puede realizar
         if (!user1)
             res.status(401).send({error: "Unauthorized"});
@@ -45,5 +46,34 @@ module.exports = function (app, friendshipsRepository, messagesRepository) {
         }, (error) => {
             res.status(500).send({error: error.message});
         });
+    });
+
+    app.put('/api/v1.0/messages/read/:id', function (req, res) {
+        let msgId = ObjectId(req.params.id)
+
+        //Obtenemos el usuario usando su token
+        let token = req.headers['token'] || req.body.token || req.query.token;
+
+        let user = decode(token).user;
+
+        if (!user) {
+            res.status(401);
+            res.json({error: "Lectura no autorizada"});
+        } else {
+
+            messagesRepository.findMessage({_id: msgId}, {}).then(msg => {
+                if (msg.receiver !== user) {
+                    res.status(401);
+                    res.json({error: "Lectura no autorizada"});
+                } else {
+                    msg.read = true;
+
+                    messagesRepository.readMessage(msg, {}, {}).then(newMsg => {
+                        res.status(204);
+                        res.json(newMsg);
+                    });
+                }
+            });
+        }
     });
 }
