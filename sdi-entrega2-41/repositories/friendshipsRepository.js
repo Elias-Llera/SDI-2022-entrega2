@@ -122,4 +122,22 @@ module.exports = {
         }
     },
 
+    /**
+     */
+    resetFriendships: async function (friendships) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'friendships';
+            const friendshipsCollection = database.collection(collectionName);
+            await friendshipsCollection.remove({});
+            for (let friendship of friendships){
+                await friendshipsCollection.insertOne(friendship);
+            }
+            return true;
+        } catch(error){
+            throw error;
+        }
+    }
+
 };

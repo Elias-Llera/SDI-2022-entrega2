@@ -2,7 +2,6 @@ const {decode} = require("jsonwebtoken");
 const {ObjectId} = require("mongodb");
 module.exports = function (app, friendshipsRepository, messagesRepository) {
     const {decode} = require("jsonwebtoken");
-
     app.post('/api/v1.0/messages', function (req, res) {
         var message = req.body;
         message.leido = false;

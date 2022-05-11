@@ -1,0 +1,66 @@
+<div id="widget-login" class="form-horizontal">
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Email:</label>
+        <div class="col-sm-10">
+            <input
+                type="email"
+                class="form-control"
+                name="email"
+                placeholder="email@email.com"
+                id="email"
+            />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="password">Password:</label>
+        <div class="col-sm-10">
+            <input
+                type="password"
+                class="form-control"
+                name="password"
+                placeholder="contraseña"
+                id="password"
+            />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-primary" id="boton-login">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.history.pushState("", "", "/apiclient/client.html?w=login");
+
+    $("#boton-login").click(function () {
+        $.ajax({
+            url: URLbase + "/users/login",
+            type: "POST",
+            data: {
+                email: $("#email").val(),
+                password: $("#password").val()
+            },
+            dataType: "json",
+            success: function success(response) {
+                token = response.token;
+                Cookies.set('token', token);
+                $("#main-container").load("widget-friends.html");
+            },
+            error: function (error) {
+                // Si conseguimos obtener un mensaje de error previamente escrito, entonces lo eliminamos
+                // De esta forma, serán notificados los errores de uno en uno
+                if (document.getElementById("login-error") !== null) $("#login-error").remove();
+
+                // Realizamos el proceso de notificación de inicio de sesión no exitoso
+                Cookies.remove('token'); // eliminamos el token correspondiente
+                $("#widget-login")
+                    .prepend(`
+                        <div class='alert alert-danger' id="login-error">
+                        Usuario con email <em>${$("#email").val()}</em> no ha sido encontrado. O la contraseña es incorrecta
+                        </div>
+                    `);
+            }
+        });
+    });
+</script>

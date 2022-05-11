@@ -1,6 +1,6 @@
 package notaneitor.pageobjects;
 
-import com.uniovi.notaneitor.util.SeleniumUtils;
+import notaneitor.util.SeleniumUtils;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

@@ -1,0 +1,61 @@
+<div id="widget-friends" >
+    <button class="btn" onclick="loadFriends()" >Actualizar</button>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>E-mail</th>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th class="col-md-1"></th>
+        </tr>
+        </thead>
+        <tbody id="friendsTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    window.history.pushState("", "", "/apiclient/client.html?w=friends");
+
+    let filteredFriends;
+    let friends;
+
+    // C7 - Sistema de ordenacion automatico
+    $('#filter-by-last-message').on('input',function(e){
+        let filteredFriends = [];
+        let filterValue = $("#filter-by-name").val();
+        filteredFriends = friends.filter(song => song.title.includes(filterValue));
+        updateFriendsTable(filteredFriends);
+    });
+
+    // C2 - Mostrar la lista de amigos
+    function loadFriends() {
+        $.ajax({
+            url: URLbase + "/friends",
+            type: "GET",
+            dataType: 'json',
+            headers: {"token": token},
+            success: function (response) {
+                friends = response.friends;
+                updateFriendsTable(friends);
+            },
+            error: function (error) {
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    }
+
+    function updateFriendsTable(friends) {
+        $("#friendsTableBody").empty(); // Vaciamos la tabla
+        friends.forEach((user) => {
+            $("#friendsTableBody").append(
+                "<tr id=" + user._id + ">" +
+                "<td>" + user.email + "</td>" +
+                "<td>" + user.name + "</td>" +
+                "<td>" + user.surname + "</td>" +
+                "</tr>");
+        })
+    }
+
+    // Cargamos los amigos automaticamente
+    loadFriends();
+</script>

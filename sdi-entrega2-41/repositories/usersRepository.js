@@ -1,5 +1,4 @@
 module.exports = {
-
     mongoClient: null,
     app: null,
 
@@ -27,8 +26,8 @@ module.exports = {
         }
     },
 
+    getUsers: async function (filter, options){
     /**
-     *
      * @param filter
      * @param options
      * @returns {Promise<*>}
@@ -46,7 +45,6 @@ module.exports = {
     },
 
     /**
-     *
      * @param filter
      * @param options
      * @param page
@@ -111,8 +109,26 @@ module.exports = {
         } catch (error) {
             throw (error);
         }
+    },
+
+    /**
+     * Metodo para reestablecer los usuarios a los predeterminados. Usado para el testeo
+     * @param usuarios  usuarios base que dejar en la aplicacion
+     * @param funcionCallback true si no hay errores, false si los hay
+     */
+    resetUsers: async function (users) {
+        try {
+            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const database = client.db("entrega2");
+            const collectionName = 'users';
+            const usersCollection = database.collection(collectionName);
+            await usersCollection.remove({});
+            for (let user of users){
+                await usersCollection.insertOne(user);
+            }
+            return true;
+        } catch(error){
+            throw error;
+        }
     }
-
-
-
 };
