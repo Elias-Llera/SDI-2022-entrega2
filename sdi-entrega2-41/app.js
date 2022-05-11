@@ -86,6 +86,10 @@ app.use(cookieParser());
 // Directorio público del proyecto
 app.use(express.static(path.join(__dirname, 'public')));
 
+const userTokenRouter = require('./api/routes/userTokenRouter');
+app.use("/api/v1.0/friends/", userTokenRouter);
+app.use("/api/v1.0/messages/", userTokenRouter);
+
 // Rutas app
 require("./routes/users.js")(app, usersRepository);
 require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
