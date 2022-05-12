@@ -9,7 +9,11 @@ userSessionRouter.use(function(req, res, next) {
             if(result.rol == "ADMIN") {
                 next();
             } else {
-                res.redirect("/users/list")
+                res.status(403); // Forbidden
+                res.json({
+                    authorized: false,
+                    error: '¡Acceso prohibido! Debes ser administrador'
+                });
             }
         }).catch(error => res.redirect("users/login"));
     } else {

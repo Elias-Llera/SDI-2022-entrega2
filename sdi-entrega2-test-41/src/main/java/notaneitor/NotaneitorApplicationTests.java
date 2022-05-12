@@ -548,7 +548,7 @@ class NotaneitorApplicationTests {
 
         //Comprobamos que hay solicitudes de amistad
         List<WebElement> invList =driver.findElements(By.className("card"));
-        Assertions.assertEquals( 3, invList.size());
+        Assertions.assertEquals( 2, invList.size());
     }
 
     // [Prueba22] Sobre el listado de invitaciones recibidas. Hacer clic en el botón/enlace de una de ellas
@@ -589,7 +589,7 @@ class NotaneitorApplicationTests {
 
         //Comprobamos que nos salen todos los amigos del usuario
         List<WebElement> friendList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
-        Assertions.assertEquals( 2, friendList.size() );
+        Assertions.assertEquals( 3, friendList.size() );
     }
 
     // [Prueba24] Ir al formulario crear publicaciones, rellenarla con datos válidos y pulsar el botón Submit.
@@ -734,7 +734,6 @@ class NotaneitorApplicationTests {
 
     //[Prueba31] Intentar acceder estando autenticado como usuario standard a la lista de amigos de otro
     //usuario. Se deberá mostrar un mensaje de acción indebida.
-    // TODO: Check wtf this is.
     @Test
     @Order(34)
     public void PR31() {
@@ -750,7 +749,7 @@ class NotaneitorApplicationTests {
         // Comprobamos que nos ha devuelto al formulario de login
         String checkText = "Acceso prohibido";
         List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
-        Assertions.assertEquals(checkText, result.get(0).getText());
+        Assertions.assertTrue(result.get(0).getText().contains(checkText));
     }
 
     //[Prueba32] Inicio de sesión con datos válidos.
@@ -843,6 +842,7 @@ class NotaneitorApplicationTests {
     @Order(39)
     public void PR36() {
         initDB();
+
         PO_APIClientView.login(driver, URL, "user01@email.com", "user01");
 
         // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
@@ -998,7 +998,6 @@ class NotaneitorApplicationTests {
         WebElement chatTable = driver.findElement(By.id("chatTableBody"));
         List<WebElement> chatList = chatTable.findElements(By.tagName("tr"));
         for (int i = 0; i < 3; i++) {
-            System.out.println(i + " -> " + chatList.get(chatList.size() - i-1).findElements(By.tagName("td")).get(1).getText());
             WebElement chatMessage = chatList.get(chatList.size() - i-1).findElements(By.tagName("td")).get(1);
 
             Assertions.assertEquals(messages[2-i], chatMessage.getText().split("-")[0].trim()); // comprobamos que es el mensaje

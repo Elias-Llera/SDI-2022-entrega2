@@ -4,14 +4,11 @@ const userSessionRouter = express.Router();
 
 userSessionRouter.use(function(req, res, next) {
     console.log("routerUsuarioSession");
-    console.log(req.session.user);
     if ( req.session.user ) {
         usersRepository.findUser({ email: req.session.user}, {}).then(result =>
         {
             if(result.rol == "ADMIN") {
-                console.log("EL piti admin")
                 res.redirect("/users/admin/list");
-
             } else {
                 next();
             }
