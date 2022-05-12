@@ -7,8 +7,14 @@ module.exports = function (app, usersRepository, friendshipsRepository, postsRep
     app.get("/initbd", async function(req, res){
 
         let users = new Array();
-        for(i=1; i++; i<16) {
-            let name = "user0"+i
+        let name = "";
+        for(i=1; i <16; i++) {
+
+            if(i < 10)
+                name = "user0"+i
+            else
+                name = "user" + i
+
             users.push({
                 email: name+"@email.com",
                 rol: "STANDARD",
@@ -40,7 +46,19 @@ module.exports = function (app, usersRepository, friendshipsRepository, postsRep
 
         friendships.push({
             sender:"user01@email.com",
+            receiver:"user06@email.com",
+            status:"ACCEPTED"
+        })
+
+        friendships.push({
+            sender:"user01@email.com",
             receiver:"user03@email.com",
+            status:"PENDING"
+        })
+
+        friendships.push({
+            sender:"user01@email.com",
+            receiver:"user04@email.com",
             status:"PENDING"
         })
 
@@ -82,6 +100,8 @@ module.exports = function (app, usersRepository, friendshipsRepository, postsRep
         })
 
         await postsRepository.resetPosts(posts);
+
+        res.render("login.twig");
 
     });
 
