@@ -25,12 +25,16 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\Users\\danie\\Downloads\\geckodriver-v0.30.0-win64\\geckodriver-v0.30.0-win64.exe";
 
     //RUTAS ELIAS
-    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    static String Geckodriver = "C:\\gekodriver\\geckodriver-v0.30.0-win64.exe";
+    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    //static String Geckodriver = "C:\\gekodriver\\geckodriver-v0.30.0-win64.exe";
 
     //RUTAS DE OSCAR
     //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
     //static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+
+    // RUTAS SITOO
+    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    static String Geckodriver = "D:\\Descargas\\geckodriver-v0.31.0-win64\\geckodriver.exe";
 
     static final String URL = "http://localhost:3000";
     static WebDriver driver = getDriver(PathFirefox, Geckodriver);
@@ -705,31 +709,105 @@ class NotaneitorApplicationTests {
         Assertions.assertEquals(checkText, result.get(0).getText());
     }
 
-/*    //[Prueba30] Intentar acceder sin estar autenticado a la opción de listado de invitaciones de amistad recibida
+    //[Prueba30] Intentar acceder sin estar autenticado a la opción de listado de invitaciones de amistad recibida
     //de un usuario estándar. Se deberá volver al formulario de login.
     @Test
     @Order(33)
     public void PR30() {
         // Intentamos acceder - sin estar autenticados - a una opción del menú para usuarios autenticados: listado de peticiones de amistad
-        driver.navigate().to(URL + "/friend/invitation/list");
+        driver.navigate().to(URL + "/friendships/invitations");
+
         // Comprobamos que nos ha devuelto al formulario de login
-        String checkText = "Identifícate";
+        String checkText = "Identificación de usuario";
         List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
         Assertions.assertEquals(checkText, result.get(0).getText());
     }
 
     //[Prueba31] Intentar acceder estando autenticado como usuario standard a la lista de amigos de otro
     //usuario. Se deberá mostrar un mensaje de acción indebida.
+    // TODO: Check wtf this is.
     @Test
     @Order(34)
     public void PR31() {
         //Iniciamos sesión como un usuario normal
-        PO_LoginView.login(driver, "user01@email.com", "user01");
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+
         // Intentamos acceder - autenticados como usuario estándar - a una opción del menú para usuarios autenticados: eliminar usuarios
-        driver.navigate().to(URL + "/admin/delete");
+        driver.navigate().to(URL + "/users/admin/list");
+
         // Comprobamos que nos ha devuelto al formulario de login
         String checkText = "Acceso prohibido";
         List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
         Assertions.assertEquals(checkText, result.get(0).getText());
-    }*/
+    }
+
+    //[Prueba32] Inicio de sesión con datos válidos.
+    @Test
+    @Order(35)
+    public void PR32() {
+        // Vamos al inicio de sesión del cliente de la API
+        driver.navigate().to(URL + "/apiclient/client.html?w=login");
+
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Lista de amigos";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba33] Inicio de sesión con datos inválidos (usuario no existente en la aplicación).
+    @Test
+    @Order(36)
+    public void PR33() {
+        // Vamos al inicio de sesión del cliente de la API
+        driver.navigate().to(URL + "/apiclient/client.html?w=login");
+
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "unhacker@email.com", "hackeadoBrooo");
+
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Usuario con email unhacker@email.com no ha sido encontrado. O la contraseña es incorrecta";
+        List<WebElement> result = PO_View.checkElementBy(driver, "id", "login-error");
+        Assertions.assertEquals(checkText, result.get(0).getText());
+    }
+
+    //[Prueba34] Acceder a la lista de amigos de un usuario, que al menos tenga tres amigos.
+    /*
+    @Test
+    @Order(37)
+    public void PR34() {
+        initDB();
+
+        // Vamos al inicio de sesión del cliente de la API
+        driver.navigate().to(URL + "/apiclient/client.html?w=login");
+
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Lista de amigos";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+
+        List<WebElement> invList =driver.findElements(By.className("card"));
+        Assertions.assertEquals( 3, invList.size());
+    }
+    */
+
+    //[Prueba35] Acceder a la lista de amigos de un usuario, y realizar un filtrado para encontrar a un amigo
+    //concreto, el nombre a buscar debe coincidir con el de un amigo.
+    //[Prueba36] Acceder a la lista de mensajes de un amigo, la lista debe contener al menos tres mensajes.
+    //[Prueba37] Acceder a la lista de mensajes de un amigo y crear un nuevo mensaje. Validar que el mensaje
+    //aparece en la lista de mensajes
+    //[Prueba38] Identificarse en la aplicación y enviar un mensaje a un amigo. Validar que el mensaje enviado
+    //aparece en el chat. Identificarse después con el usuario que recibió el mensaje y validar que tiene un
+    //mensaje sin leer. Entrar en el chat y comprobar que el mensaje pasa a tener el estado leído.
+    //[Prueba39] Identificarse en la aplicación y enviar tres mensajes a un amigo. Validar que los mensajes
+    //enviados aparecen en el chat. Identificarse después con el usuario que recibido el mensaje y validar que el
+    //número de mensajes sin leer aparece en la propia lista de amigos
 }
