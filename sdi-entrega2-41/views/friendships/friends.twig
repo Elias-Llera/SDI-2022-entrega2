@@ -6,6 +6,9 @@
 
     <!-- Listado de usuarios -->
     <div class="table-responsive">
+        {% if friends|length == 0 %}
+        <h3>Todavía no tienes amigos</h3>
+        {% else %}
         <table class="table table-hover" id="tableUsers">
             <thead>
             <tr>
@@ -26,13 +29,14 @@
                     <td scope="row" >{{ friend.email }}</td>
                     <td scope="row">
                         <a href="\posts\{{ friend.email }}">
-                            <button class="btn btn-primary">Publicaciones</button>
+                            <button class="btn">Publicaciones</button>
                         </a>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+        {% endif %}
     </div>
 
     <!-- Paginación mostrar la actual y 2 anteriores y dos siguientes -->

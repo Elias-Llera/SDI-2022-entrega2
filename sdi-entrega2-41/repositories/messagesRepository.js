@@ -43,13 +43,13 @@ module.exports = {
         }
     },
 
-    readMessage: async function (newMsg, filter, options) {
+    readMessage: async function (filter, options) {
         try {
             const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
             const database = client.db("entrega2");
             const collectionName = 'messages';
             const messagesCollection = database.collection(collectionName);
-            const result = await messagesCollection.updateOne(filter, {$set: newMsg}, options);
+            const result = await messagesCollection.updateOne(filter, {$set: {"read": true}}, options);
             return result;
         } catch (error) {
             throw (error)

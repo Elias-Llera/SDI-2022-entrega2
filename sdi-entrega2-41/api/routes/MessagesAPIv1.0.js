@@ -50,11 +50,7 @@ module.exports = function (app, friendshipsRepository, messagesRepository) {
 
     app.put('/api/v1.0/messages/read/:id', function (req, res) {
         let msgId = ObjectId(req.params.id)
-
-        //Obtenemos el usuario usando su token
-        let token = req.headers['token'] || req.body.token || req.query.token;
-
-        let user = decode(token).user;
+        let user = res.user;
 
         if (!user) {
             res.status(401);
@@ -66,9 +62,7 @@ module.exports = function (app, friendshipsRepository, messagesRepository) {
                     res.status(401);
                     res.json({error: "Lectura no autorizada"});
                 } else {
-                    msg.read = true;
-
-                    messagesRepository.readMessage(msg, {}, {}).then(newMsg => {
+                    messagesRepository.readMessage({_id: msgId}, {}).then(newMsg => {
                         res.status(204);
                         res.json(newMsg);
                     });

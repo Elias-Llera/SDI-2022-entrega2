@@ -1,9 +1,10 @@
 <div id="widget-chat" class="container">
+    <h1>Conversacion de amistad</h1>
     <div id="chat">
         <table class="table table-hover">
             <thead>
             <tr>
-                <th>My friend</th>
+                <th id="user-name">My friend</th>
                 <th class="text-right">Me</th>
             </tr>
             </thead>
@@ -39,17 +40,21 @@
         $("#chatTableBody").empty(); // Vaciamos la tabla
         // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
         // Deberemos preparar dos formatos: si es un amigo el que escribe...
-        const isAMessageFromFriend = (message) =>  `
+        const isAMessageFromFriend = (message) =>  {
+            if (!message.read)
+                markMessageAsRead(message);
+            return `
                 <tr id="${message.date}">
-                    <td>${message.text}</td>
+                    <td> ${message.read? " <i> leído </i> - ":" <i> recibido </i> - "} ${message.text}</td>
                     <td></td>
                 </tr>
             `;
+        };
         // Si soy yo el que ha escrito el mensaje...
         const isAMessageFromMe = (message) =>  `
                 <tr id="${message.date}">
                     <td></td>
-                    <td class="text-right">${message.text}</td>
+                    <td class="text-right">${message.text} ${message.read? " - <i> leído </i>":"- <i> recibido </i>"} </td>
                 </tr>
             `;
         // Para cada mensaje, insertamos un nuevo elemento en la tabla
@@ -73,6 +78,26 @@
         }
     }
 
+    function markMessageAsRead(message) {
+        $.ajax({
+            url: URLbase + "/messages/read/" + message._id,
+            type: "PUT",
+            dataType: 'json',
+            data: {
+            },
+            headers: {
+                "token": token,
+            },
+            success: function (response) {
+            },
+            error: function (error) {
+                // VOLVEMOS a la pantalla de inicio de sesión
+                alert("Ha ocurrido un error :(\n" + error.message); // tras haber informado al usuario de que un error ha ocurrido
+                $("#main-container").load("widget-login.html");
+            }
+        });
+    }
+
     // Lo hago aquí también porque voy a cambiar ciertas cosas de cómo se ejecuta la petición :)
     function loadMessagesForChat(user) {
         $.ajax({
@@ -87,7 +112,7 @@
             },
             success: function (response) {
                 // Recargamos los mensajes que han demostrarse en pantalla :)
-                updateMessagesTable(response.messages);
+                    updateMessagesTable(response.messages);
             },
             error: function (error) {
                 // VOLVEMOS a la pantalla de inicio de sesión
@@ -109,19 +134,19 @@
             dataType: 'json',
             data: {
                 receiver: selectedFriendEmail,
-                text: $("#message").val(),
             },
             headers: {"token": token},
             success: function (response) {
-                console.log("Mensaje: " + $("#message").val() + ". Enviado con éxito!");
                 $("#message").val("");
             },
             error: function (error) {
-                console.log(error);
                 clearInterval(refreshEachSecond); // debemos parar de ejecutar esto constantemente
                 $("#main-container").load("widget-login.html");
             }
         });
     });
+
+    $("#user-name").text(selectedFriendEmail);
+    loadMessagesForChat(selectedFriendEmail);
 
 </script>

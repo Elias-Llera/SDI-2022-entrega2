@@ -29,14 +29,14 @@ public class PO_UserListView extends PO_NavView {
      */
     public static void executeSearch(WebDriver driver, String searchText) {
         //CLickamos en la opción de registro y esperamos a que se cargue el enlace de Registro.
-        List<WebElement> elements = SeleniumUtils.waitLoadElementsBy(driver, "id", "searchText",
+        List<WebElement> elements = SeleniumUtils.waitLoadElementsBy(driver, "id", "inputSearch",
                 getTimeout());
         //Tiene que haber un sólo elemento.
         Assertions.assertEquals(1, elements.size());
         //Ahora lo clickamos
         elements.get(0).sendKeys(searchText);
         //A continuacion, apretamos el boton de busqueda
-        elements = checkElementByKey(driver, "user.list.submit", PO_Properties.getSPANISH());
+        elements = checkElementBy(driver, "id", "btnSearch");
         //Tiene que haber un sólo elemento.
         Assertions.assertEquals(1, elements.size());
         //Ahora lo clickamos
