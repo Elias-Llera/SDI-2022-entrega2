@@ -91,7 +91,6 @@
             },
             error: function (error) {
                 // VOLVEMOS a la pantalla de inicio de sesión
-                console.log(error);
                 alert("Ha ocurrido un error :(\n" + error.message); // tras haber informado al usuario de que un error ha ocurrido
                 $("#main-container").load("widget-login.html");
             }
@@ -112,7 +111,7 @@
             },
             success: function (response) {
                 // Recargamos los mensajes que han demostrarse en pantalla :)
-                updateMessagesTable(response.messages);
+                    updateMessagesTable(response.messages);
             },
             error: function (error) {
                 // VOLVEMOS a la pantalla de inicio de sesión
@@ -125,7 +124,7 @@
     // Ejecutamos la función cada segundo :)
     var refreshEachSecond = window.setInterval(() => {
         loadMessagesForChat(selectedFriendEmail); // recargamos los mensajes...
-    }, 2000);
+    }, 1000);
 
     $("#button-message").click(function () {
         $.ajax({
@@ -138,11 +137,9 @@
             },
             headers: {"token": token},
             success: function (response) {
-                console.log("Mensaje: " + $("#message").val() + ". Enviado con éxito!");
                 $("#message").val("");
             },
             error: function (error) {
-                console.log(error);
                 clearInterval(refreshEachSecond); // debemos parar de ejecutar esto constantemente
                 $("#main-container").load("widget-login.html");
             }
