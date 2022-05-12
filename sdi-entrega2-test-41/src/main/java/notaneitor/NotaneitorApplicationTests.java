@@ -673,4 +673,57 @@ class NotaneitorApplicationTests {
         Assertions.assertEquals(checkText, result.get(0).getText());
     }
 
+    //[Prueba35] Acceder a la lista de amigos de un usuario, y realizar un filtrado para encontrar a un amigo
+    //concreto, el nombre a buscar debe coincidir con el de un amigo.
+    @Test
+    @Order(38)
+    public void PR35() {
+        initDB();
+        // Vamos al inicio de sesión del cliente de la API
+        driver.navigate().to(URL + "/apiclient/client.html?w=login");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Lista de amigos";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+        List<WebElement> invList =driver.findElements(By.className("card"));
+        Assertions.assertEquals( 3, invList.size());
+    }
+
+    //[Prueba36] Acceder a la lista de mensajes de un amigo, la lista debe contener al menos tres mensajes.
+    @Test
+    @Order(39)
+    public void PR36() {
+        initDB();
+        // Vamos al inicio de sesión del cliente de la API
+        driver.navigate().to(URL + "/apiclient/client.html?w=login");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Lista de amigos";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+        List<WebElement> invList =driver.findElements(By.className("card"));
+        Assertions.assertEquals( 3, invList.size());
+    }
+
+    //[Prueba37] Acceder a la lista de mensajes de un amigo y crear un nuevo mensaje. Validar que el mensaje
+    //aparece en la lista de mensajes
+    @Test
+    @Order(40)
+    public void PR37() {
+        initDB();
+        // Vamos al inicio de sesión del cliente de la API
+        driver.navigate().to(URL + "/apiclient/client.html?w=login");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+        //Comprobamos que entramos en la página privada de usuario
+        String checkText = "Lista de amigos";
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
+        Assertions.assertEquals(checkText, result.get(0).getText());
+        List<WebElement> invList =driver.findElements(By.className("card"));
+        Assertions.assertEquals( 3, invList.size());
+    }
+
 }
