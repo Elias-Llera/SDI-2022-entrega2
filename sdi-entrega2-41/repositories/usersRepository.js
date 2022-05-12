@@ -1,3 +1,4 @@
+const {getConnection} = require("./db");
 module.exports = {
     mongoClient: null,
     app: null,
@@ -15,7 +16,7 @@ module.exports = {
      */
     findUser: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);
@@ -34,7 +35,7 @@ module.exports = {
      */
     getUsers: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client =await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);
@@ -53,7 +54,7 @@ module.exports = {
     getUsersPg: async function (filter, options, page){
         try {
             const limit = 5;
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);
@@ -68,7 +69,7 @@ module.exports = {
 
     getUsers: async function (filter, options){
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const c = database.collection(collectionName);
@@ -87,7 +88,7 @@ module.exports = {
      */
     insertUser: async function (user) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);
@@ -100,7 +101,7 @@ module.exports = {
 
     deleteUser: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);
@@ -118,7 +119,7 @@ module.exports = {
      */
     resetUsers: async function (users) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'users';
             const usersCollection = database.collection(collectionName);

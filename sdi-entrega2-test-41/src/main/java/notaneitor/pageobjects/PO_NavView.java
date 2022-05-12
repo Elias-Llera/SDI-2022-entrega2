@@ -10,7 +10,7 @@ import java.util.List;
 public class PO_NavView  extends PO_View{
 
     /**
-     * CLicka una de las opciones principales (a href) y comprueba que se vaya a la vista con el elemento de tipo type con el texto Destino
+     * Clica una de las opciones principales (a href) y comprueba que se vaya a la vista con el elemento de tipo type con el texto Destino
      * @param driver: apuntando al navegador abierto actualmente.
      * @param textOption: Texto de la opción principal.
      * @param criterio: "id" or "class" or "text" or "@attribute" or "free". Si el valor de criterio es free es una expresion xpath completa.
@@ -45,5 +45,6 @@ public class PO_NavView  extends PO_View{
         List<WebElement> Selectedlanguage = SeleniumUtils.waitLoadElementsBy(driver, "id", textLanguage, getTimeout());
         Selectedlanguage.get(0).click();
     }
+
 }
 

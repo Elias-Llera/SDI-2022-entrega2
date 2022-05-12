@@ -7,12 +7,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import notaneitor.util.SeleniumUtils;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 
 //Ordenamos las pruebas por la anotación @Order de cada método
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class NotaneitorApplicationTests {
+
     //Para MACOSX
     //static String PathFirefox = "/Applications/Firefox 2.app/Contents/MacOS/firefox-bin";
     //static String Geckodriver = "/Users/delacal/selenium/geckodriver-v0.30.0-macos";
@@ -29,12 +32,16 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\gekodriver\\geckodriver-v0.30.0-win64.exe";
 
     //RUTAS DE OSCAR
-    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    //static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
 
     // RUTAS SITOO
-    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    static String Geckodriver = "D:\\Descargas\\geckodriver-v0.31.0-win64\\geckodriver.exe";
+    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    //static String Geckodriver = "D:\\Descargas\\geckodriver-v0.31.0-win64\\geckodriver.exe";
+
+    // RUTAS ÁNGEL
+    //static String PathFirefox = "/usr/bin/firefox";
+    //static String Geckodriver = "/usr/local/bin/geckodriver";
 
     static final String URL = "http://localhost:3000";
     static WebDriver driver = getDriver(PathFirefox, Geckodriver);
@@ -72,7 +79,7 @@ class NotaneitorApplicationTests {
     //Después de cada prueba se borran las cookies del navegador
     @AfterEach
     public void tearDown() {
-        //driver.manage().deleteAllCookies();
+        driver.manage().deleteAllCookies();
         //driver.close();
     }
 
@@ -693,6 +700,7 @@ class NotaneitorApplicationTests {
         // Aquí reset a la db
         initDB();
         driver.navigate().to(URL);
+
     }
 
     //[Prueba29] Intentar acceder sin estar autenticado a la opción de listado de usuarios. Se deberá volver al
@@ -777,36 +785,118 @@ class NotaneitorApplicationTests {
     }
 
     //[Prueba34] Acceder a la lista de amigos de un usuario, que al menos tenga tres amigos.
-    /*
     @Test
     @Order(37)
     public void PR34() {
         initDB();
-
-        // Vamos al inicio de sesión del cliente de la API
-        driver.navigate().to(URL + "/apiclient/client.html?w=login");
-
-        //Rellenamos el formulario
-        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
 
         //Comprobamos que entramos en la página privada de usuario
         String checkText = "Lista de amigos";
         List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
         Assertions.assertEquals(checkText, result.get(0).getText());
 
-        List<WebElement> invList =driver.findElements(By.className("card"));
-        Assertions.assertEquals( 3, invList.size());
+        // Tenemos que esperar a que carguen todos los elementos de la tabla, ya que vienen de la DB
+        WebDriverWait wait = new WebDriverWait(driver, 2);
+        wait.until(ExpectedConditions.and(
+                ExpectedConditions.elementToBeClickable(By.id("user02@email.com")),
+                ExpectedConditions.elementToBeClickable(By.id("user03@email.com")),
+                ExpectedConditions.elementToBeClickable(By.id("user06@email.com"))
+        ));
+
+        // Realizamos el proceso de obtención del nombre del amigo dado un email y esperamos a que cargue la entrada en concreto
+        WebElement friendTable = driver.findElement(By.id("friendsTableBody"));
+        List<WebElement> friendList = friendTable.findElements(By.tagName("tr"));
+        Assertions.assertEquals( 3, friendList.size());
     }
-    */
 
     //[Prueba35] Acceder a la lista de amigos de un usuario, y realizar un filtrado para encontrar a un amigo
-    //concreto, el nombre a buscar debe coincidir con el de un amigo.
+    // en concreto: el nombre a buscar debe coincidir con el de un amigo.
+    @Test
+    @Order(38)
+    public void PR35() {
+        initDB();
+        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01"); // sabemos los amigos que tiene este usuario
+
+        // Establecemos el email y el nombre del amigo que queremos buscar
+        String friendEmail = "user02@email.com"; // sabemos que este es un amigo
+        String friendName = "user02"; // y este es su nombre
+
+        // Realizamos el proceso de obtención del nombre del amigo dado un email y esperamos a que cargue la entrada en concreto
+        WebElement friendRow = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                friendEmail,
+                PO_View.getTimeout()
+        ).get(0);
+
+        // el segundo td es el de nombre
+        WebElement nameCell = friendRow.findElements(By.tagName("td")).get(1);
+
+        // Comprobamos que el nombre es efectivamente el del amigo que estábamos buscando :)
+        Assertions.assertEquals(friendName, nameCell.getText()); // deben coincidir
+    }
+
     //[Prueba36] Acceder a la lista de mensajes de un amigo, la lista debe contener al menos tres mensajes.
+    @Test
+    @Order(39)
+    public void PR36() {
+        initDB();
+        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
+
+        // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
+        WebElement friendChat = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                "chat-user02",
+                PO_View.getTimeout()
+        ).get(0);
+        friendChat.click(); // pulsamos el enlace que nos llevará a la lista de mensajes con ese amigo
+
+        // Debemos comprobar que hay más de tres mensajes con ese amigo
+        List<WebElement> invList = driver.findElements(By.tagName("tr")); // en caso de que haya más de tres filas en la tabla...
+        Assertions.assertTrue( invList.size() >= 3); // sabemos que hay más de tres mensajes
+    }
+
     //[Prueba37] Acceder a la lista de mensajes de un amigo y crear un nuevo mensaje. Validar que el mensaje
-    //aparece en la lista de mensajes
+    // aparece en la lista de mensajes
+    @Test
+    @Order(40)
+    public void PR37() {
+        initDB();
+        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
+
+        // Escribimos algún tipo de mensaje que queremos mandar :)
+        String message = "Esto es un mensaje de prueba. Estamos comprobando que todo funciona bien!";
+
+        // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
+        WebElement friendChat = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                "chat-user02",
+                PO_View.getTimeout()
+        ).get(0);
+        friendChat.click(); // pulsamos el enlace que nos llevará a la lista de mensajes con ese amigo
+
+        // Tenemos que crear un nuevo mensaje, para ello accedemos al input de tipo texto que se encuentra en la parte inferior
+        WebElement writeMessageInput = driver.findElement(By.id("message"));
+        writeMessageInput.click(); // hacemos click en el input para escribir el mensaje
+        writeMessageInput.clear(); // borramos el input: por si estaba escrito algo sin darnos cuenta
+        writeMessageInput.sendKeys(message); // escribimos el mensaje en concreto
+
+        // Y ahora pulsamos el botón de enviar y comprobaremos que se ha enviado
+        WebElement sendButton = driver.findElement(By.id("button-message"));
+        sendButton.click(); // enviamos el mensaje
+
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", message); // buscamos el mensaje en la página
+        // No nos importa lo que haya más allá del guion: puede ser recibido, leído o lo que sea, eso es parte de otro test
+        Assertions.assertEquals(message, result.get(0).getText().split("-")[0].trim()); // en caso de que esté el mensaje, las cosas habrán ido como debían
+    }
+
     //[Prueba38] Identificarse en la aplicación y enviar un mensaje a un amigo. Validar que el mensaje enviado
     //aparece en el chat. Identificarse después con el usuario que recibió el mensaje y validar que tiene un
     //mensaje sin leer. Entrar en el chat y comprobar que el mensaje pasa a tener el estado leído.
+
     //[Prueba39] Identificarse en la aplicación y enviar tres mensajes a un amigo. Validar que los mensajes
     //enviados aparecen en el chat. Identificarse después con el usuario que recibido el mensaje y validar que el
     //número de mensajes sin leer aparece en la propia lista de amigos

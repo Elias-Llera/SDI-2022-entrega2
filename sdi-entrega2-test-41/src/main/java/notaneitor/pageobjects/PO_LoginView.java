@@ -9,11 +9,11 @@ import java.util.List;
 
 public class PO_LoginView extends PO_NavView {
 
-	static public void fillLoginForm(WebDriver driver, String dnip, String passwordp) {
-		WebElement dni = driver.findElement(By.name("email"));
-		dni.click();
-		dni.clear();
-		dni.sendKeys(dnip);
+	static public void fillLoginForm(WebDriver driver, String emailp, String passwordp) {
+		WebElement email = driver.findElement(By.name("email"));
+		email.click();
+		email.clear();
+		email.sendKeys(emailp);
 		WebElement password = driver.findElement(By.name("password"));
 		password.click();
 		password.clear();
@@ -22,9 +22,6 @@ public class PO_LoginView extends PO_NavView {
 		By boton = By.className("btn");
 		driver.findElement(boton).click();	
 	}
-
-
-
 
 	public static void login(WebDriver driver, String username, String passwordp) {
 		// Vamos al formulario de inicio de sesión
@@ -51,6 +48,14 @@ public class PO_LoginView extends PO_NavView {
 
 	public static void logout(WebDriver driver) {
 		driver.findElements(By.id("logout")).get(0).click();
+	}
+
+
+	public static void logInApi(WebDriver driver, String URL, String email, String password) {
+		// Vamos al inicio de sesión del cliente de la API
+		driver.navigate().to(URL + "/apiclient/client.html?w=login");
+		// Rellenamos el formulario
+		PO_LoginView.fillLoginForm(driver, email, password);
 	}
 
 }

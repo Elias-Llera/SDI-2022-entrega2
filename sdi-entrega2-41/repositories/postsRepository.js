@@ -1,3 +1,4 @@
+const {getConnection} = require("./db");
 module.exports = {
 
     mongoClient: null,
@@ -16,7 +17,7 @@ module.exports = {
      */
     getPosts: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
@@ -36,7 +37,7 @@ module.exports = {
     getPostsPg: async function (filter, options, page) {
         try {
             const limit = 4;
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
@@ -57,7 +58,7 @@ module.exports = {
      */
     findPost: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
@@ -74,7 +75,7 @@ module.exports = {
      */
     insertPost: async function (post) {
         try{
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
@@ -93,7 +94,7 @@ module.exports = {
      */
     deletePost: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
@@ -107,7 +108,7 @@ module.exports = {
      */
     resetPosts: async function (posts) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'posts';
             const postsCollection = database.collection(collectionName);
