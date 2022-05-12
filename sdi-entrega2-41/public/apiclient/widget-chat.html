@@ -39,17 +39,21 @@
         $("#chatTableBody").empty(); // Vaciamos la tabla
         // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
         // Deberemos preparar dos formatos: si es un amigo el que escribe...
-        const isAMessageFromFriend = (message) =>  `
+        const isAMessageFromFriend = (message) =>  {
+            if (!message.read)
+                markMessageAsRead(message);
+            return `
                 <tr id="${message.date}">
-                    <td>${message.text}</td>
+                    <td> ${message.read? " <i> leído </i> - ":" <i> recibido </i> - "} ${message.text}</td>
                     <td></td>
                 </tr>
             `;
+        };
         // Si soy yo el que ha escrito el mensaje...
         const isAMessageFromMe = (message) =>  `
                 <tr id="${message.date}">
                     <td></td>
-                    <td class="text-right">${message.text}</td>
+                    <td class="text-right">${message.text} ${message.read? " - <i> leído </i>":"- <i> recibido </i>"} </td>
                 </tr>
             `;
         // Para cada mensaje, insertamos un nuevo elemento en la tabla
@@ -71,6 +75,27 @@
                     $("#chatTableBody").append(isAMessageFromMe(message));
             });
         }
+    }
+
+    function markMessageAsRead(message) {
+        $.ajax({
+            url: URLbase + "/messages/read/" + message._id,
+            type: "PUT",
+            dataType: 'json',
+            data: {
+            },
+            headers: {
+                "token": token,
+            },
+            success: function (response) {
+            },
+            error: function (error) {
+                // VOLVEMOS a la pantalla de inicio de sesión
+                console.log(error);
+                alert("Ha ocurrido un error :(\n" + error.message); // tras haber informado al usuario de que un error ha ocurrido
+                $("#main-container").load("widget-login.html");
+            }
+        });
     }
 
     // Lo hago aquí también porque voy a cambiar ciertas cosas de cómo se ejecuta la petición :)
@@ -100,7 +125,7 @@
     // Ejecutamos la función cada segundo :)
     var refreshEachSecond = window.setInterval(() => {
         loadMessagesForChat(selectedFriendEmail); // recargamos los mensajes...
-    }, 1000);
+    }, 2000);
 
     $("#button-message").click(function () {
         $.ajax({
