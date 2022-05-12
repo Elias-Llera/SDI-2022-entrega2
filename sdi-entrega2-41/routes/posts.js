@@ -21,7 +21,9 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
         if(errors.length === 0){
             postsRepository.insertPost(post)
                 .then(
-                    res.redirect("/posts/" + req.session.user)
+                    res.redirect("/posts/" + req.session.user +
+                        "?message=Publicación insertada" +
+                        "&messageType=alert-info ")
                 )
                 .catch( () =>
                     res.redirect("/posts/" + req.session.user +
@@ -115,9 +117,9 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
     function validatePost(post){
         let errors = [];
         if(typeof (post.title) === "undefined" || post.title.toString().trim().length === 0)
-            errors.push("Error al insertar la publicación: título vacío.")
-        if(post.title.toString().trim().length >= 20)
-            errors.push("Error al insertar la publicación: el título no debe superar los 20 caracteres.")
+            errors.push("El título es obligatorio.")
+        if(post.title.toString().trim().length >= 50)
+            errors.push("Error al insertar la publicación: el título no debe superar los 50 caracteres.")
         if(typeof (post.content) === "undefined" || post.content.toString().trim().length === 0)
             errors.push("Error al insertar la publicación: contenido vacío.")
         if(post.content.toString().trim().length < 10 || post.content.toString().length > 300)

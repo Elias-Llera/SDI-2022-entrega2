@@ -1,4 +1,5 @@
 const express = require('express');
+const usersRepository = require("../repositories/usersRepository");
 const userSessionRouter = express.Router();
 
 userSessionRouter.use(function(req, res, next) {

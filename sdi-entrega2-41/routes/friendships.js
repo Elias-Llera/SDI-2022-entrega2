@@ -106,35 +106,30 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      * @param userID es un parametro de URL.
      * @param paametroEnBody es un parametro del cuerpo. tipo string y contiene blablabla
      */
-    app.post("/friendships/send/:userEmail", function(req, res){
-        canSendInviteTo(req.params.userEmail, req.session.user)
-            .then(canSend=>{
-                if(canSend){
-                    let friendship = {
-                        sender: req.session.user,
-                        receiver: req.params.userEmail,
-                        state: "PENDING"
-                    }
-                    friendshipsRepository.insertFriendship(friendship)
-                        .then( () => {
-                            res.redirect("/users/list")
-                        })
-                        .catch( () =>
-                            res.redirect("/" +
-                                "?message=Se ha producido un error al crear la invitación de amistad" +
-                                "&messageType=alert-danger ")
-                        );
-                } else {
+    app.post("/friendships/send/:userEmail", async function(req, res){
+        let canSendInvite = await canSendInviteTo(req.params.userEmail, req.session.user);
+        if(canSendInvite){
+            let friendship = {
+                sender: req.session.user,
+                receiver: req.params.userEmail,
+                status: "PENDING"
+            }
+            friendshipsRepository.insertFriendship(friendship)
+                .then( () => {
+                    res.redirect("/users/list"  +
+                        "?message=Invitación enviada" +
+                        "&messageType=alert-info ")
+                })
+                .catch( () =>
                     res.redirect("/" +
-                        "?message=No puedes enviar una invitación a este usuario" +
+                        "?message=Se ha producido un error al crear la invitación de amistad" +
                         "&messageType=alert-danger ")
-                }
-            })
-            .catch( () =>
-                res.redirect("/" +
-                    "?message=Se ha producido un error al crear la invitación" +
-                    "&messageType=alert-danger ")
-            );
+                );
+        } else {
+            res.redirect("/" +
+                "?message=No puedes enviar una invitación a este usuario" +
+                "&messageType=alert-danger ")
+        }
     });
 
     /**
@@ -144,10 +139,13 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      * @returns {Promise<boolean>}
      */
     async function canSendInviteTo(userEmail, registeredUser){
-        if(userEmail === registeredUser)
+        if(userEmail === registeredUser) {
+            console.log("Same user")
             return false;
+        }
         let filter = {$or: [{sender:registeredUser, receiver: userEmail}, {sender:userEmail, receiver: registeredUser}]};
         let friendships = await friendshipsRepository.getFriendships(filter, {});
+        console.log(friendships);
         return friendships.length === 0;
     }
 
@@ -155,13 +153,15 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
      *
      */
     app.post("/friendships/accept/:userEmail", function(req, res) {
-        let filter = { sender:req.params.userEmail, state: "PENDING" };
+        let filter = { sender:req.params.userEmail, status: "PENDING" };
         friendshipsRepository.findFriendship(filter, {})
             .then( friendship => {
-                friendship.state = "ACCEPTED";
+                friendship.status = "ACCEPTED";
                 friendshipsRepository.updateFriendship(friendship, filter, {})
                     .then( () => {
-                        res.redirect("/friendships/friends")})
+                        res.redirect("/friendships/friends" +
+                            "?message=Invitación aceptada" +
+                            "&messageType=alert-info ")})
                     .catch( () =>
                         res.redirect("/" +
                             "?message=Se ha producido un error al aceptar la petición" +

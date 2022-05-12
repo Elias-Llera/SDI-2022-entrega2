@@ -24,9 +24,13 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\Path\\geckodriver-v0.30.0-win64.exe";
     //static String Geckodriver = "C:\\Users\\danie\\Downloads\\geckodriver-v0.30.0-win64\\geckodriver-v0.30.0-win64.exe";
 
-    //RUTAS DE OSCAR
+    //RUTAS ELIAS
     static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+    static String Geckodriver = "C:\\gekodriver\\geckodriver-v0.30.0-win64.exe";
+
+    //RUTAS DE OSCAR
+    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    //static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
 
     static final String URL = "http://localhost:3000";
     static WebDriver driver = getDriver(PathFirefox, Geckodriver);
@@ -53,8 +57,12 @@ class NotaneitorApplicationTests {
     //Antes de cada prueba se navega al URL home de la aplicación
     @BeforeEach
     public void setUp() {
-        driver.navigate().to(URL + "/initbd");
+        initDB();
         driver.navigate().to(URL);
+    }
+
+    private void initDB(){
+        driver.navigate().to(URL + "/initbd");
     }
 
     //Después de cada prueba se borran las cookies del navegador
@@ -471,117 +479,222 @@ class NotaneitorApplicationTests {
         PO_UserListView.checkElementBy(driver, "text", "user15");
     }
 
+    // [Prueba19] Desde el listado de usuarios de la aplicación, enviar una invitación de amistad a un usuario.
+    // Comprobar que la solicitud de amistad aparece en el listado de invitaciones (punto siguiente).
+    @Test
+    @Order(21)
+    public void PR19() {
+        //Iniciamos sesión como usuario estándar
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
-    /* //[Prueba21] Mostrar el listado de invitaciones de amistad recibidas.
-     // Comprobar con un listado que contenga varias invitaciones recibidas.
-     @Test
-     @Order(21)
-     public void PR21() {
-         //Iniciamos sesión como usuario estándar
-         PO_LoginView.login(driver, "user03@email.com", "user03");
+        // Ya en el listado de usuarios, enviamos una invitación al usuario 4
+        List<WebElement> sendInviteButtons = SeleniumUtils.waitLoadElementsBy(driver, "text", "Enviar invitación", PO_View.getTimeout());
+        sendInviteButtons.get(3).click();
 
-         //Vamos a la vista /friendInvitations/list
-         PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "invitationsMenu");
+        // Sale el mensaje informativo
+        List<WebElement> message = SeleniumUtils.waitLoadElementsBy(driver, "text", "Invitación enviada", PO_View.getTimeout());
+        Assertions.assertTrue(message.size() == 1);
+    }
 
-         //Comprobamos que estamos en la vista friend invitation list
-         List<WebElement> result = PO_LoginView.checkElementByKey(driver, "friendInvitation.list.info", PO_Properties.getSPANISH() );
-         String checkText = PO_HomeView.getP().getString("friendInvitation.list.info", PO_Properties.getSPANISH());
-         Assertions.assertEquals(checkText , result.get(0).getText());
+    // [Prueba20] Desde el listado de usuarios de la aplicación, enviar una invitación de amistad a un usuario
+    // al que ya le habíamos enviado la invitación previamente. No debería dejarnos enviar la invitación,
+    // se podría ocultar el botón de enviar invitación o notificar que ya había sido enviada previamente.
+    @Test
+    @Order(22)
+    public void PR20() {
+        //Iniciamos sesión como usuario estándar
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
-         //Comprobamos que hay solicitudes de amistad
-         List<WebElement> invList = SeleniumUtils.waitLoadElementsBy(driver, "free", "/h3", PO_View.getTimeout());
-         Assertions.assertTrue( invList.size() == 3 );
-     }
+        // Intentamos enviarle una invitación al user 01, salta error
+        List<WebElement> sendInviteButtons = SeleniumUtils.waitLoadElementsBy(driver, "text", "Enviar invitación", PO_View.getTimeout());
+        sendInviteButtons.get(0).click();
 
-     // [Prueba23] Mostrar el listado de amigos de un usuario.
-     // Comprobar que el listado contiene los amigos que deben ser
-     @Test
-     @Order(23)
-     public void  PR23(){
-         //Log in con user
-         PO_LoginView.login(driver, "user01@email.com", "user01");
+        // Sale el mensaje de error
+        List<WebElement> message = SeleniumUtils.waitLoadElementsBy(driver, "text", "No puedes enviar una invitación a este usuario", PO_View.getTimeout());
+        Assertions.assertTrue(message.size() == 1);
+    }
 
-         //Ir a la página de listado de amigos
-         PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+    //[Prueba21] Mostrar el listado de invitaciones de amistad recibidas.
+    // Comprobar con un listado que contenga varias invitaciones recibidas.
+    @Test
+    @Order(23)
+    public void PR21() {
+        //Iniciamos sesión como usuario estándar
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user03@email.com", "user03");
 
-         //Comprobamos que estamos en la página de listado de amigos
-         List<WebElement> result = PO_LoginView.checkElementByKey(driver, "friends.list.info", PO_Properties.getSPANISH() );
-         String checkText = PO_HomeView.getP().getString("friends.list.info", PO_Properties.getSPANISH());
-         Assertions.assertEquals(checkText , result.get(0).getText());
+        //Vamos a la vista /friendInvitations/list
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "invitationsMenu");
 
-         //Comprobamos que nos salen todos los amigos del usuario
-         List<WebElement> friendList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
-         Assertions.assertTrue( friendList.size() == 2 );
-     }
+        //Comprobamos que hay solicitudes de amistad
+        List<WebElement> invList =driver.findElements(By.className("card"));
+        Assertions.assertEquals( 3, invList.size());
+    }
 
-     // [Prueba26] Mostrar el listado de publicaciones de un usuario y comprobar
-     // que se muestran todas las que existen para dicho usuario.
-     @Test
-     @Order(28)
-     public void PR26(){
-         //Log in con user con 3 publicaciones
-         PO_LoginView.login(driver, "user01@email.com", "user01");
+    // [Prueba22] Sobre el listado de invitaciones recibidas. Hacer clic en el botón/enlace de una de ellas
+    // y comprobar que dicha solicitud desaparece del listado de invitaciones.
+    @Test
+    @Order(24)
+    public void PR22() {
+        //Iniciamos sesión como usuario estándar
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user04@email.com", "user04");
 
-         //Ir a la página de publicaciones propias
-         PO_PrivateView.clickSubMenuOption(driver, "postsDropdown", "myPostsMenu");
+        //Vamos a la vista /friendInvitations/list
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "invitationsMenu");
 
-         //Comprobamos que estamos en la página de listado de publicaciones
-         List<WebElement> result = PO_LoginView.checkElementByKey(driver, "posts.list.info", PO_Properties.getSPANISH() );
-         String checkText = PO_HomeView.getP().getString("posts.list.info", PO_Properties.getSPANISH());
-         Assertions.assertEquals(checkText , result.get(0).getText());
+        // Aceptamos la invitación, la invitación desaparece
+        List<WebElement> acceptButtons = SeleniumUtils.waitLoadElementsBy(driver, "text", "Aceptar", PO_View.getTimeout());
+        acceptButtons.get(0).click();
 
-         //Comprobamos que hay 3 publicaciones
-         List<WebElement> posts = driver.findElements(By.className("card"));;
-         Assertions.assertEquals(3, posts.size());
-     }
+        List<WebElement> invitations = driver.findElements(By.className("card"));
+        Assertions.assertTrue(invitations.size() == 0);
+    }
 
-     // [Prueba27] Mostrar el listado de publicaciones de un usuario amigo y comprobar
-     // que se muestran todas las que existen para dicho - usuario.
-     @Test
-     @Order(27)
-     public void PR27(){
-         //Log in con user
-         PO_LoginView.login(driver, "user02@email.com", "user02");
-         //Ir a la pagina de listar amigos
-         PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+    // [Prueba23] Mostrar el listado de amigos de un usuario.
+    // Comprobar que el listado contiene los amigos que deben ser
+    @Test
+    @Order(25)
+    public void  PR23(){
+        //Log in con user
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
 
-         //Hacemos clic en un amigo con 3 publicaciones
-         List<WebElement> elements = PO_View.checkElementBy(driver, "free", "//a[contains(@class, 'btn btn-primary')]");
-         elements.get(0).click();
+        //Ir a la página de listado de amigos
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
 
-         //Comprobamos que estamos en la página de listado de publicaciones
-         List<WebElement> result = PO_LoginView.checkElementByKey(driver, "posts.list.info", PO_Properties.getSPANISH() );
-         String checkText = PO_HomeView.getP().getString("posts.list.info", PO_Properties.getSPANISH());
-         Assertions.assertEquals(checkText , result.get(0).getText());
+        //Comprobamos que nos salen todos los amigos del usuario
+        List<WebElement> friendList = SeleniumUtils.waitLoadElementsBy(driver, "free", "//tbody/tr", PO_View.getTimeout());
+        Assertions.assertEquals( 2, friendList.size() );
+    }
 
+    // [Prueba24] Ir al formulario crear publicaciones, rellenarla con datos válidos y pulsar el botón Submit.
+    // Comprobar que la publicación sale en el listado de publicaciones de dicho usuario.
+    @Test
+    @Order(26)
+    public void  PR24(){
+        //Log in con user sin publicaciones
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user04@email.com", "user04");
 
-         //Comprobamos que hay 3 publicaciones
-         List<WebElement> posts = driver.findElements(By.className("card"));;
-         Assertions.assertEquals(3, posts.size());
-     }
+        // Vamos a la vista de nueva publicación
+        PO_PrivateView.clickSubMenuOption(driver, "postsDropdown", "newPostMenu");
 
-     // [Prueba28] Utilizando un acceso vía URL u otra alternativa,
-     // tratar de listar las publicaciones de un usuario que no sea amigo
-     // del usuario identificado en sesión. Comprobar que el sistema da un error de autorización.
-     @Test
-     @Order(28)
-     public void PR28(){
-         //Log in con user
-         PO_LoginView.login(driver, "user01@email.com", "user01");
+        // Creamos una publicación
+        PO_NewPostView.fillPostForm(driver, "Publicación de prueba", "Contenido de publicación de prueba");
 
-         //Intentamos acceder mediante URL a un usuario que no es amigo
-         driver.navigate().to(URL+"/post/list/user04@email.com");
+        // Comprobamos que aparece la publicación
+        List<WebElement> posts = driver.findElements(By.className("card"));
+        Assertions.assertEquals(1, posts.size());
+    }
 
-         //Comprobamos que estamos en la página de error
-         String checkText = PO_View.getP().getString("error.accessDenied.message", PO_Properties.getSPANISH());
-         List<WebElement> result = PO_View.checkElementByKey(driver, "error.accessDenied.message", PO_Properties.getSPANISH());
-         Assertions.assertEquals(checkText, result.get(0).getText());
-     }
- */
+    // [Prueba25] Ir al formulario de crear publicaciones, rellenarla con datos inválidos (campo título vacío)
+    // y pulsar el botón Submit. Comprobar que se muestra el mensaje de campo obligatorio.
+    @Test
+    @Order(27)
+    public void  PR25(){
+        //Log in con user
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user04@email.com", "user04");
+
+        // Vamos a la vista de nueva publicación
+        PO_PrivateView.clickSubMenuOption(driver, "postsDropdown", "newPostMenu");
+
+        // Creamos una publicación
+        PO_NewPostView.fillPostForm(driver, "", "Contenido de publicación de prueba");
+
+        // Comprobamos que sale el mensaje de error
+        List<WebElement> message = SeleniumUtils.waitLoadElementsBy(driver, "text", "El título es obligatorio.", PO_View.getTimeout());
+        Assertions.assertTrue(message.size() == 1);
+    }
+
+    // [Prueba26] Mostrar el listado de publicaciones de un usuario y comprobar
+    // que se muestran todas las que existen para dicho usuario.
+    @Test
+    @Order(28)
+    public void PR26(){
+        //Log in con user con 3 publicaciones
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+
+        //Ir a la página de publicaciones propias
+        PO_PrivateView.clickSubMenuOption(driver, "postsDropdown", "myPostsMenu");
+
+        //Comprobamos que hay 3 publicaciones
+        List<WebElement> posts = driver.findElements(By.className("card"));;
+        Assertions.assertEquals(3, posts.size());
+    }
+
+    // [Prueba27] Mostrar el listado de publicaciones de un usuario amigo y comprobar
+    // que se muestran todas las que existen para dicho - usuario.
+    @Test
+    @Order(29)
+    public void PR27(){
+        //Log in con user
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user02@email.com", "user02");
+        //Ir a la pagina de listar amigos
+        PO_PrivateView.clickSubMenuOption(driver, "friendshipsDropdown", "friendsMenu");
+
+        //Hacemos clic en un amigo con 3 publicaciones
+        WebElement buttonPosts = SeleniumUtils
+                .waitLoadElementsBy(driver, "class", "btn", PO_View.getTimeout()).stream().findFirst()
+                .orElse(null);
+        buttonPosts.click();
+
+        //Comprobamos que hay 3 publicaciones
+        List<WebElement> posts =driver.findElements(By.className("card"));;
+        Assertions.assertEquals(3, posts.size());
+    }
+
+    // [Prueba28] Utilizando un acceso vía URL u otra alternativa,
+    // tratar de listar las publicaciones de un usuario que no sea amigo
+    // del usuario identificado en sesión. Comprobar que el sistema da un error de autorización.
+    @Test
+    @Order(30)
+    public void PR28(){
+        //Log in con user
+        //Vamos al formulario de inicio de sesión.
+        PO_HomeView.clickOption(driver, "login", "class", "btn btn-primary");
+        //Rellenamos el formulario
+        PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+
+        //Intentamos acceder mediante URL a un usuario que no es amigo
+        driver.navigate().to(URL+"/posts/user05@email.com");
+
+        //Comprobamos que estamos en la página de error
+        List<WebElement> result = SeleniumUtils.waitLoadElementsBy(driver, "text", "Acceso no autorizado", PO_View.getTimeout());
+        Assertions.assertTrue(result.size()==1);
+
+        // Aquí reset a la db
+        initDB();
+        driver.navigate().to(URL);
+    }
+
     //[Prueba29] Intentar acceder sin estar autenticado a la opción de listado de usuarios. Se deberá volver al
     //formulario de login.
     @Test
-    @Order(32)
+    @Order(31)
     public void PR29() {
         // Intentamos acceder - sin estar autenticados - a una opción del menú para usuarios autenticados: listado de usuarios
         driver.navigate().to(URL + "/users/list");
