@@ -4,6 +4,7 @@ const userSessionRouter = express.Router();
 
 userSessionRouter.use(function(req, res, next) {
     console.log("routerUsuarioSession");
+    console.log(req.session.user);
     if ( req.session.user ) {
         usersRepository.findUser({ email: req.session.user}, {}).then(result =>
         {
@@ -14,7 +15,7 @@ userSessionRouter.use(function(req, res, next) {
             } else {
                 next();
             }
-        }).catch(error => res.redirect("users/login"));
+        }).catch(error => res.redirect("/users/login"));
 
     } else {
        res.redirect("/users/login");

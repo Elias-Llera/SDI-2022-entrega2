@@ -1,4 +1,5 @@
 <div id="widget-friends" >
+    <h1>Lista de amigos</h1>
     <button class="btn" onclick="loadFriends()" >Actualizar</button>
     <table class="table table-hover">
         <thead>
@@ -44,7 +45,6 @@
 
     function friendToRow(user, messages) {
         // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
-
 
         let unreadMessages = 0;
         // Hecho con un loop pues no es un apartado de la API y decidimos no modificarla.
@@ -128,6 +128,6 @@
     // Ejecutamos la función cada segundo :)
     var refreshEachSecond = window.setInterval(() => {
         loadFriends(); // recargamos los amigos...
-    }, 5000); //TODO Got to 1 sec
+    }, 1000);
     loadFriends();
 </script>

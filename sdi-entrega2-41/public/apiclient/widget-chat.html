@@ -1,9 +1,10 @@
 <div id="widget-chat" class="container">
+    <h1>Conversacion de amistad</h1>
     <div id="chat">
         <table class="table table-hover">
             <thead>
             <tr>
-                <th>My friend</th>
+                <th id="user-name">My friend</th>
                 <th class="text-right">Me</th>
             </tr>
             </thead>
@@ -133,7 +134,6 @@
             dataType: 'json',
             data: {
                 receiver: selectedFriendEmail,
-                text: $("#message").val(),
             },
             headers: {"token": token},
             success: function (response) {
@@ -145,5 +145,8 @@
             }
         });
     });
+
+    $("#user-name").text(selectedFriendEmail);
+    loadMessagesForChat(selectedFriendEmail);
 
 </script>

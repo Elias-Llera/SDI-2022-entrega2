@@ -64,6 +64,7 @@ app.use("/users/list", userSessionRouter);
 const userTokenRouter = require('./api/routes/userTokenRouter');
 app.use("/api/v1.0/friends/", userTokenRouter);
 app.use("/api/v1.0/messages/", userTokenRouter);
+app.use("/friendships/invitations", userSessionRouter);
 app.use("/users/admin/list", adminSessionRouter);
 app.use("/users/delete", adminSessionRouter);
 
