@@ -55,7 +55,7 @@ public class PO_LoginView extends PO_NavView {
 		// Vamos al inicio de sesión del cliente de la API
 		driver.navigate().to(URL + "/apiclient/client.html?w=login");
 		// Rellenamos el formulario
-		PO_LoginView.fillLoginForm(driver, "user01@email.com", "user01");
+		PO_LoginView.fillLoginForm(driver, email, password);
 	}
 
 }

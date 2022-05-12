@@ -53,7 +53,7 @@ module.exports = function (app, usersRepository, friendshipsRepository, postsRep
         friendships.push({
             sender:"user01@email.com",
             receiver:"user03@email.com",
-            status:"PENDING"
+            status:"ACCEPTED"
         })
 
         friendships.push({
