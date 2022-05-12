@@ -7,6 +7,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import notaneitor.util.SeleniumUtils;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 
@@ -792,8 +794,18 @@ class NotaneitorApplicationTests {
         List<WebElement> result = PO_View.checkElementBy(driver, "text", checkText);
         Assertions.assertEquals(checkText, result.get(0).getText());
 
-        List<WebElement> invList = driver.findElements(By.className("card"));
-        Assertions.assertEquals( 3, invList.size());
+        // Tenemos que esperar a que carguen todos los elementos de la tabla, ya que vienen de la DB
+        WebDriverWait wait = new WebDriverWait(driver, 2);
+        wait.until(ExpectedConditions.and(
+                ExpectedConditions.elementToBeClickable(By.id("user02@email.com")),
+                ExpectedConditions.elementToBeClickable(By.id("user03@email.com")),
+                ExpectedConditions.elementToBeClickable(By.id("user06@email.com"))
+        ));
+
+        // Realizamos el proceso de obtención del nombre del amigo dado un email y esperamos a que cargue la entrada en concreto
+        WebElement friendTable = driver.findElement(By.id("friendsTableBody"));
+        List<WebElement> friendList = friendTable.findElements(By.tagName("tr"));
+        Assertions.assertEquals( 3, friendList.size());
     }
 
     //[Prueba35] Acceder a la lista de amigos de un usuario, y realizar un filtrado para encontrar a un amigo
@@ -806,12 +818,18 @@ class NotaneitorApplicationTests {
 
         // Establecemos el email y el nombre del amigo que queremos buscar
         String friendEmail = "user02@email.com"; // sabemos que este es un amigo
-        String friendName = "User02"; // y este es su nombre
+        String friendName = "user02"; // y este es su nombre
 
-        // Realizamos el proceso de obtención del nombre del amigo dado un email
-        WebElement friendsTable = driver.findElement(By.id("friendsTableBody")); // obtenemos el cuerpo de la tabla de amigos
-        WebElement friendRow = friendsTable.findElement(By.id(friendEmail)); // buscamos al amigo en concreto
-        WebElement nameCell = friendRow.findElements(By.tagName("td")).get(1); // el segundo td es el de nombre
+        // Realizamos el proceso de obtención del nombre del amigo dado un email y esperamos a que cargue la entrada en concreto
+        WebElement friendRow = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                friendEmail,
+                PO_View.getTimeout()
+        ).get(0);
+
+        // el segundo td es el de nombre
+        WebElement nameCell = friendRow.findElements(By.tagName("td")).get(1);
 
         // Comprobamos que el nombre es efectivamente el del amigo que estábamos buscando :)
         Assertions.assertEquals(friendName, nameCell.getText()); // deben coincidir
@@ -825,7 +843,12 @@ class NotaneitorApplicationTests {
         PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
 
         // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
-        WebElement friendChat = driver.findElement(By.id("search_user02@email.com")); // obtenemos el enlace al chat a través de su id
+        WebElement friendChat = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                "chat-user02",
+                PO_View.getTimeout()
+        ).get(0);
         friendChat.click(); // pulsamos el enlace que nos llevará a la lista de mensajes con ese amigo
 
         // Debemos comprobar que hay más de tres mensajes con ese amigo
@@ -845,7 +868,12 @@ class NotaneitorApplicationTests {
         String message = "Esto es un mensaje de prueba. Estamos comprobando que todo funciona bien!";
 
         // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
-        WebElement friendChat = driver.findElement(By.id("search_user02@email.com")); // obtenemos el enlace al chat a través de su id
+        WebElement friendChat = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                "chat-user02",
+                PO_View.getTimeout()
+        ).get(0);
         friendChat.click(); // pulsamos el enlace que nos llevará a la lista de mensajes con ese amigo
 
         // Tenemos que crear un nuevo mensaje, para ello accedemos al input de tipo texto que se encuentra en la parte inferior
@@ -859,7 +887,8 @@ class NotaneitorApplicationTests {
         sendButton.click(); // enviamos el mensaje
 
         List<WebElement> result = PO_View.checkElementBy(driver, "text", message); // buscamos el mensaje en la página
-        Assertions.assertEquals(message, result.get(0).getText()); // en caso de que esté el mensaje, las cosas habrán ido como debían
+        // No nos importa lo que haya más allá del guion: puede ser recibido, leído o lo que sea, eso es parte de otro test
+        Assertions.assertEquals(message, result.get(0).getText().split("-")[0].trim()); // en caso de que esté el mensaje, las cosas habrán ido como debían
     }
 
     //[Prueba38] Identificarse en la aplicación y enviar un mensaje a un amigo. Validar que el mensaje enviado
