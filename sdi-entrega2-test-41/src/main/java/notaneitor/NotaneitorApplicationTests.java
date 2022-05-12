@@ -11,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
+import java.util.Random;
 
 //Ordenamos las pruebas por la anotación @Order de cada método
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -32,12 +33,12 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\gekodriver\\geckodriver-v0.30.0-win64.exe";
 
     //RUTAS DE OSCAR
-    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    //static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
 
     // RUTAS SITOO
-    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    //static String Geckodriver = "D:\\Descargas\\geckodriver-v0.31.0-win64\\geckodriver.exe";
+    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    static String Geckodriver = "D:\\Descargas\\geckodriver-v0.31.0-win64\\geckodriver.exe";
 
     // RUTAS ÁNGEL
     //static String PathFirefox = "/usr/bin/firefox";
@@ -789,7 +790,7 @@ class NotaneitorApplicationTests {
     @Order(37)
     public void PR34() {
         initDB();
-        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
+        PO_APIClientView.login(driver, URL, "user01@email.com", "user01");
 
         //Comprobamos que entramos en la página privada de usuario
         String checkText = "Lista de amigos";
@@ -816,7 +817,7 @@ class NotaneitorApplicationTests {
     @Order(38)
     public void PR35() {
         initDB();
-        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01"); // sabemos los amigos que tiene este usuario
+        PO_APIClientView.login(driver, URL, "user01@email.com", "user01"); // sabemos los amigos que tiene este usuario
 
         // Establecemos el email y el nombre del amigo que queremos buscar
         String friendEmail = "user02@email.com"; // sabemos que este es un amigo
@@ -842,7 +843,7 @@ class NotaneitorApplicationTests {
     @Order(39)
     public void PR36() {
         initDB();
-        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
+        PO_APIClientView.login(driver, URL, "user01@email.com", "user01");
 
         // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
         WebElement friendChat = SeleniumUtils.waitLoadElementsBy(
@@ -864,7 +865,7 @@ class NotaneitorApplicationTests {
     @Order(40)
     public void PR37() {
         initDB();
-        PO_LoginView.logInApi(driver, URL, "user01@email.com", "user01");
+        PO_APIClientView.login(driver, URL, "user01@email.com", "user01");
 
         // Escribimos algún tipo de mensaje que queremos mandar :)
         String message = "Esto es un mensaje de prueba. Estamos comprobando que todo funciona bien!";
@@ -896,8 +897,127 @@ class NotaneitorApplicationTests {
     //[Prueba38] Identificarse en la aplicación y enviar un mensaje a un amigo. Validar que el mensaje enviado
     //aparece en el chat. Identificarse después con el usuario que recibió el mensaje y validar que tiene un
     //mensaje sin leer. Entrar en el chat y comprobar que el mensaje pasa a tener el estado leído.
+    @Test
+    @Order(40)
+    public void PR38() {
+        initDB();
+
+        // USUARIO 1 MANDA MENSAJE (NO LEIDO)
+
+        PO_APIClientView.openChat(driver, URL, "user01@email.com", "user01", "user02");
+
+        String randomText = new Random().ints(97, 122)
+                .limit(20)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+        // Generamos un mensaje random :)
+        String message = "Hey, usa este código para robux gratis!! => " + randomText;
+
+        // Tenemos que crear un nuevo mensaje, para ello accedemos al input de tipo texto que se encuentra en la parte inferior
+        WebElement writeMessageInput = driver.findElement(By.id("message"));
+        writeMessageInput.click(); // hacemos click en el input para escribir el mensaje
+        writeMessageInput.clear(); // borramos el input: por si estaba escrito algo sin darnos cuenta
+        writeMessageInput.sendKeys(message); // escribimos el mensaje en concreto
+
+        // Y ahora pulsamos el botón de enviar y comprobaremos que se ha enviado
+        WebElement sendButton = driver.findElement(By.id("button-message"));
+        sendButton.click(); // enviamos el mensaje
+
+        List<WebElement> result = PO_View.checkElementBy(driver, "text", message); // buscamos el mensaje en la página
+
+        String statusMsg = "recibido"; //no leído
+        Assertions.assertEquals(statusMsg, result.get(0).getText().split("-")[1].trim()); // obtenemos solamente el estado del mensaje
+
+        // USUARIO 2 ABRE CHAT (leido)
+
+        driver.manage().deleteAllCookies();
+        PO_APIClientView.login(driver, URL, "user02@email.com", "user02");
+
+        // Ahora mismo estamos en la lista de amigos, y queremos acceder al chat de un amigo en concreto
+        WebElement friendChat = SeleniumUtils.waitLoadElementsBy(
+                driver,
+                "id",
+                "chat-user01",
+                PO_View.getTimeout()
+        ).get(0);
+
+        Assertions.assertEquals(message, friendChat.getText().split("-")[1].trim());
+
+        friendChat.click(); // pulsamos el enlace que nos llevará a la lista de mensajes con ese amigo
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        WebElement chatTable = driver.findElement(By.id("chatTableBody"));
+        List<WebElement> chatList = chatTable.findElements(By.tagName("tr"));
+        WebElement chatMessage = chatList.get(chatList.size() - 1).findElements(By.tagName("td")).get(0);
+
+        Assertions.assertEquals(message, chatMessage.getText().split("-")[1].trim()); // comprobamos que es el mensaje
+
+        statusMsg = "leído"; //leído
+        Assertions.assertEquals(statusMsg, chatMessage.getText().split("-")[0].trim()); // obtenemos solamente el estado del mensaje
+
+    }
 
     //[Prueba39] Identificarse en la aplicación y enviar tres mensajes a un amigo. Validar que los mensajes
     //enviados aparecen en el chat. Identificarse después con el usuario que recibido el mensaje y validar que el
     //número de mensajes sin leer aparece en la propia lista de amigos
+    @Test
+    @Order(41)
+    public void PR39() {
+        initDB();
+
+        // USUARIO 2 LEE TODOS SUS MENSAJES PENDIENTES
+        PO_APIClientView.openChat(driver, URL, "user02@email.com", "user02", "user01");
+        // Esperamos a que se lean correctamente
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // USUARIO 1 MANDA 3 MENSAJES
+        driver.manage().deleteAllCookies();
+        PO_APIClientView.openChat(driver, URL, "user01@email.com", "user01", "user02");
+
+        String[] messages = {"Hey me frend", "I am Nigerian King with lotz and lotz of moni", "Send my yor mother and I giv u th mony :)"};
+
+        PO_APIClientView.sendMessage(driver, messages[0]);
+        PO_APIClientView.sendMessage(driver, messages[1]);
+        PO_APIClientView.sendMessage(driver, messages[2]);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        WebElement chatTable = driver.findElement(By.id("chatTableBody"));
+        List<WebElement> chatList = chatTable.findElements(By.tagName("tr"));
+        for (int i = 0; i < 3; i++) {
+            System.out.println(i + " -> " + chatList.get(chatList.size() - i-1).findElements(By.tagName("td")).get(1).getText());
+            WebElement chatMessage = chatList.get(chatList.size() - i-1).findElements(By.tagName("td")).get(1);
+
+            Assertions.assertEquals(messages[2-i], chatMessage.getText().split("-")[0].trim()); // comprobamos que es el mensaje
+        }
+
+        // USUARIO 2 VE CUANTOS MENSAJES TIENE SIN LEER
+        driver.manage().deleteAllCookies();
+        PO_APIClientView.login(driver, URL, "user02@email.com", "user02");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        WebElement friendUnreadMessages = driver.findElement(By.id("messages-user01@email.com"));
+        String unreadMessagesText = friendUnreadMessages.getText();
+        String expectedMessages = "3";
+
+        Assertions.assertTrue(unreadMessagesText.contains(expectedMessages));
+    }
 }

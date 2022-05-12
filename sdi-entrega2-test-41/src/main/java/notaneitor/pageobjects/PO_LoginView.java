@@ -50,12 +50,4 @@ public class PO_LoginView extends PO_NavView {
 		driver.findElements(By.id("logout")).get(0).click();
 	}
 
-
-	public static void logInApi(WebDriver driver, String URL, String email, String password) {
-		// Vamos al inicio de sesión del cliente de la API
-		driver.navigate().to(URL + "/apiclient/client.html?w=login");
-		// Rellenamos el formulario
-		PO_LoginView.fillLoginForm(driver, email, password);
-	}
-
 }
