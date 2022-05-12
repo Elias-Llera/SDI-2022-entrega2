@@ -1,6 +1,6 @@
 const {ObjectId} = require("mongodb");
 
-module.exports = function (app, usersRepository) {
+module.exports = function (app, usersRepository, infoLogger) {
 
     /**
      * Funcionalidad listado de usuarios con busqueda y paginacion
@@ -45,13 +45,15 @@ module.exports = function (app, usersRepository) {
                     session: req.session,
                     search: req.query.search
                 }
+                infoLogger.info(req.session.user + " -> Se accede a la lista de usuarios");
                 res.render("users/list.twig", response);
             })
-            .catch( () =>
+            .catch( () => {
+                infoLogger.error("Ha habido un error al acceder a la lista de usuarios de administrador");
                 res.redirect("/" +
                     "?message=Ha ocurrido un error al listar los usuarios." +
-                    "&messageType=alert-danger ")
-            );
+                    "&messageType=alert-danger ");
+            });
     });
 
     /**
@@ -69,12 +71,14 @@ module.exports = function (app, usersRepository) {
                     session: req.session,
                     search: req.query.search
                 }
+                infoLogger.warn(req.session.user + " -> Se accede a la lista de usuarios de administrador");
                 res.render("users/admin/list.twig", response);
             })
-            .catch( () =>
+            .catch( () => {
+                infoLogger.error("Ha habido un error al acceder a la lista de usuarios de administrador");
                 res.redirect("/" +
                     "?message=Ha ocurrido un error al listar los usuarios." +
-                    "&messageType=alert-danger ")
+                    "&messageType=alert-danger ");}
             );
     });
 
@@ -82,6 +86,7 @@ module.exports = function (app, usersRepository) {
      * Funcionalidad borrado de usuarios
      */
     app.get('/users/delete', function (req, res) {
+        infoLogger.warn("Se intenta borrar usuarios");
         var list = [];
 
         if (req.query.deleteList != null && req.query.deleteList != undefined) {
@@ -96,6 +101,7 @@ module.exports = function (app, usersRepository) {
             }
         }
 
+        infoLogger.info(req.session.user + " -> Borra usuarios");
         res.redirect("/users/admin/list");
     });
 
@@ -107,10 +113,12 @@ module.exports = function (app, usersRepository) {
     function deleteUser(userId, res) {
         usersRepository.deleteUser({_id: ObjectId(userId)}, {}).then(result => {
             if (result == null || result.deletedCount == 0) {
+                infoLogger.error("Ha habido un error al eliminar el usuario '" + userId + "'");
                 res.write("No se ha podido eliminar el registro");
             }
             res.end();
         }).catch( () => {
+            infoLogger.error("Ha habido un error al eliminar el usuario '" + userId + "'");
             res.redirect("/" +
                 "?message=Ha ocurrido un error al eliminar usuarios." +
                 "&messageType=alert-danger ")
@@ -121,6 +129,7 @@ module.exports = function (app, usersRepository) {
      * Funcionalidad GET de login
      */
     app.get('/users/login', function (req, res) {
+        infoLogger.info("Se accede al inicio de sesión");
         res.render("login.twig");
     });
 
@@ -137,15 +146,18 @@ module.exports = function (app, usersRepository) {
         let options = {}
         usersRepository.findUser(filter, options).then(user => {
             if (user == null) {
+                infoLogger.warn("Se introducen incorrectamente los datos al intentar iniciar sesión");
                 req.session.user = null;
                 res.redirect("/users/login" +
                     "?message=Email o password incorrecto" +
                     "&messageType=alert-danger ");
             } else {
+                infoLogger.info("El usuario '" + user.email + "' inicia sesión en el sistema");
                 req.session.user = user.email;
                 res.redirect("/users/list");
             }
         }).catch( () => {
+            infoLogger.warn("Se produce un error al intentar iniciar sesión");
             req.session.user = null;
             res.redirect("/users/login" +
                 "?message=Se ha producido un error al buscar el usuario" +
@@ -158,6 +170,7 @@ module.exports = function (app, usersRepository) {
      * Registro de usuarios GET
      */
     app.get('/users/signup', function (req, res) {
+        infoLogger.info("Se accede al formulario de registro");
         res.render("signup.twig");
     })
 
@@ -176,19 +189,20 @@ module.exports = function (app, usersRepository) {
             rol: "STANDARD"
         }
         await validateUser(user,req.body.password,req.body.passwordConfirm).then(result => {
-
-
             if (result.length > 0) {
                 let url = ""
                 for (error in result) {
+                    infoLogger.warn("Ha habido un error al rellenar el formulario de registro (" + result[error] + ")");
                     url += "&message=" + result[error] + "&messageType=alert-danger "
                 }
                 res.redirect("/users/signup?" + url);
                 return
             }
             usersRepository.insertUser(user).then( () => {
+                infoLogger.info("El usuario '" + user.email + "' se ha registrado en el sistema");
                 res.redirect("/users/login?message=Nuevo usuario registrado&messageType=alert-info");
             }).catch( () => {
+                infoLogger.warn("Ha habido un error al registrar un usuario");
                 res.redirect("/users/signup?message=Se ha producido un error al registrar usuario&messageType=alert-danger");
             });
         });
@@ -225,6 +239,7 @@ module.exports = function (app, usersRepository) {
     }
 
     app.get('/users/logout', function (req, res) {
+        infoLogger.info("El usuario " + req.session.user + " cierra sesión en el sistema");
         req.session.user = null;
         res.redirect("/users/login?message=Usuario desconectado correctamente&messageType=alert-info");
     });

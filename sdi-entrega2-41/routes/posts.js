@@ -1,9 +1,10 @@
-module.exports = function (app, postsRepository, friendshipsRepository) {
+module.exports = function (app, postsRepository, friendshipsRepository, infoLogger) {
 
     /**
      *
      */
     app.get("/posts/add", function(req, res){
+        infoLogger.info(req.session.user + " -> Accede a la vista de creación de posts");
         res.render("posts/add.twig", {session:req.session});
     });
 
@@ -20,15 +21,20 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
         let errors = validatePost(post);
         if(errors.length === 0){
             postsRepository.insertPost(post)
-                .then(
-                    res.redirect("/posts/" + req.session.user +
-                        "?message=Publicación insertada" +
-                        "&messageType=alert-info ")
+                .then( () =>
+                    {
+                        infoLogger.info(req.session.user + " -> Añade una nueva publicación con título '" + post.title + "'");
+                        res.redirect("/posts/" + req.session.user +
+                            "?message=Publicación insertada" +
+                            "&messageType=alert-info ");
+                    }
                 )
-                .catch( () =>
+                .catch( () => () => {
+                    infoLogger.error("Ha habido un error al añadir una publicación");
                     res.redirect("/posts/" + req.session.user +
-                        "?message=Se ha producido un error al insertar la publicación" +
-                        "&messageType=alert-danger ")
+                            "?message=Se ha producido un error al insertar la publicación" +
+                            "&messageType=alert-danger ");
+                    }
                 );
         } else {
             let url = ""
@@ -43,7 +49,6 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
      *
      */
     app.get("/posts/:userEmail", async function(req, res) {
-        console.log(req.params.userEmail);
         let filter = { author: req.params.userEmail};
         let options = {};
 
@@ -74,9 +79,12 @@ module.exports = function (app, postsRepository, friendshipsRepository) {
                         pages: pages,
                         currentPage: page
                     }
+
+                    infoLogger.info(req.session.user + " -> Se accede a las publicaciones de " + req.params.userEmail);
                     res.render("posts/list.twig", response);
                 })
                 .catch( () => {
+                    infoLogger.error("Ha habido un error al acceder a las publicaciones de " + req.params.userEmail);
                     res.redirect("/" +
                         "?message=Se ha producido un error al buscar las publicaciones" +
                         "&messageType=alert-danger ");
