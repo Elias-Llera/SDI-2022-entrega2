@@ -30,16 +30,17 @@ class NotaneitorApplicationTests {
     //static String Geckodriver = "C:\\gekodriver\\geckodriver-v0.30.0-win64.exe";
 
     //RUTAS DE OSCAR
-    //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-    //static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
+    static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+    static String Geckodriver = "C:\\Users\\oscar\\OneDrive\\Desktop\\SDI\\LAB\\sesion06\\PL-SDI-Sesión5-material\\PL-SDI-Sesión5-material\\geckodriver-v0.30.0-win64.exe";
 
     // RUTAS SITOO
     //static String PathFirefox = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
     //static String Geckodriver = "D:\\Descargas\\geckodriver-v0.31.0-win64\\geckodriver.exe";
 
     // RUTAS ÁNGEL
-    static String PathFirefox = "/usr/bin/firefox";
-    static String Geckodriver = "/usr/local/bin/geckodriver";
+    //static String PathFirefox = "/usr/bin/firefox";
+    //static String Geckodriver = "/usr/local/bin/geckodriver";
+
     static final String URL = "http://localhost:3000";
     static WebDriver driver = getDriver(PathFirefox, Geckodriver);
 
@@ -76,7 +77,7 @@ class NotaneitorApplicationTests {
     //Después de cada prueba se borran las cookies del navegador
     @AfterEach
     public void tearDown() {
-        //driver.manage().deleteAllCookies();
+        driver.manage().deleteAllCookies();
         //driver.close();
     }
 
@@ -697,6 +698,7 @@ class NotaneitorApplicationTests {
         // Aquí reset a la db
         initDB();
         driver.navigate().to(URL);
+
     }
 
     //[Prueba29] Intentar acceder sin estar autenticado a la opción de listado de usuarios. Se deberá volver al
