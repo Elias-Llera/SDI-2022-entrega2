@@ -1,4 +1,4 @@
-module.exports = function (app, friendshipsRepository, usersRepository) {
+module.exports = function (app, friendshipsRepository, usersRepository, infoLogger) {
 
     /**
      *
@@ -37,19 +37,23 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                             currentPage: page
                         }
 
-                        console.log(response.friends);
+                        infoLogger.info(req.session.user + " -> Accede a la lista de amigos");
                         res.render("friendships/friends.twig", response);
                     })
-                    .catch( () =>
+                    .catch( () => {
+                        infoLogger.error("Ha habido un error al acceder a la lista de amigos");
                         res.redirect("/" +
                             "?message=Se ha producido un error al buscar los usuarios" +
-                            "&messageType=alert-danger ")
+                            "&messageType=alert-danger ");
+                        }
                     );
             })
-            .catch( () =>
+            .catch( () => {
+                infoLogger.error("Ha habido un error al acceder a la lista de amigos");
                 res.redirect("/" +
                     "?message=Se ha producido un error al buscar los amigos" +
-                    "&messageType=alert-danger ")
+                    "&messageType=alert-danger ");
+                }
             );
     });
 
@@ -87,18 +91,22 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                             pages: pages,
                             currentPage: page
                         }
+                        infoLogger.info(req.session.user + " -> Accede a la lista de invitaciones de amistad");
                         res.render("friendships/invitations.twig", response);
                     })
-                    .catch( () =>
+                    .catch( () => {
+                        infoLogger.error("Ha habido un error al acceder a la lista de peticiónes de amistad");
                         res.redirect("/" +
                             "?message=Se ha producido un error al buscar los usuarios" +
-                            "&messageType=alert-danger ")
-                    );
+                            "&messageType=alert-danger ");
+                    });
             })
-            .catch( () =>
+            .catch( () => {
+                infoLogger.error("Ha habido un error al acceder a la lista de peticiónes de amistad");
                 res.redirect("/" +
                     "?message=Se ha producido un error al buscar las invitaciones" +
-                    "&messageType=alert-danger ")
+                    "&messageType=alert-danger ");
+                }
             );
     });
 
@@ -116,19 +124,23 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
             }
             friendshipsRepository.insertFriendship(friendship)
                 .then( () => {
+                    infoLogger.info(req.session.user + " -> Envía una petición de amistad a " + req.params.userEmail);
                     res.redirect("/users/list"  +
                         "?message=Invitación enviada" +
                         "&messageType=alert-info ")
                 })
-                .catch( () =>
+                .catch( () => {
+                    infoLogger.error("Ha habido un error al enviar una petición de amistad");
                     res.redirect("/" +
                         "?message=Se ha producido un error al crear la invitación de amistad" +
-                        "&messageType=alert-danger ")
+                        "&messageType=alert-danger ");
+                    }
                 );
         } else {
+            infoLogger.error("Ha habido un error al enviar una petición de amistad");
             res.redirect("/" +
                 "?message=No puedes enviar una invitación a este usuario" +
-                "&messageType=alert-danger ")
+                "&messageType=alert-danger ");
         }
     });
 
@@ -159,19 +171,26 @@ module.exports = function (app, friendshipsRepository, usersRepository) {
                 friendship.status = "ACCEPTED";
                 friendshipsRepository.updateFriendship(friendship, filter, {})
                     .then( () => {
+
+                        infoLogger.info(req.session.user + " -> Acepta la invitación de amistad de " + req.params.userEmail);
                         res.redirect("/friendships/friends" +
                             "?message=Invitación aceptada" +
                             "&messageType=alert-info ")})
-                    .catch( () =>
+                    .catch( () => {
+
+                        infoLogger.error("Ha habido un error al aceptar una petición de amistad");
                         res.redirect("/" +
                             "?message=Se ha producido un error al aceptar la petición" +
                             "&messageType=alert-danger ")
+                        }
                     );
             })
-            .catch( () =>
-                res.redirect("/" +
-                    "?message=Se ha producido un error buscar la petición" +
-                    "&messageType=alert-danger ")
+            .catch( () => {
+                    infoLogger.error("Ha habido un error al aceptar una petición de amistad");
+                    res.redirect("/" +
+                        "?message=Se ha producido un error buscar la petición" +
+                        "&messageType=alert-danger ");
+                }
             );
     });
 

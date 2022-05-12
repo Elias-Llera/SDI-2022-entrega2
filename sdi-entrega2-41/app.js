@@ -7,6 +7,17 @@ require('dotenv').config();
 
 let app = express();
 
+// Módulo para añadir un log de texto al sistema
+let log4js = require("log4js");
+log4js.configure({
+  appenders: { registro: {type: "file", filename:"logs/redSocial.log" }},
+  categories: { default: { appenders: ["registro"], level: "info"}}
+});
+
+// Registrador de información
+let infoLogger = log4js.getLogger("registro");
+infoLogger.level = "debug";
+
 // Añadimos las cabeceras mas permisivas de Access-Cotrol-Allow-Origin para todas las peticiones
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -88,9 +99,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas app
-require("./routes/users.js")(app, usersRepository);
-require("./routes/posts.js")(app, postsRepository, friendshipsRepository);
-require("./routes/friendships.js")(app, friendshipsRepository, usersRepository);
+require("./routes/users.js")(app, usersRepository, infoLogger);
+require("./routes/posts.js")(app, postsRepository, friendshipsRepository, infoLogger);
+require("./routes/friendships.js")(app, friendshipsRepository, usersRepository, infoLogger);
 
 // SOLO PARA TESTS!!!!!!!!!!!!!!!!!
 require("./routes/bd.js")(app, usersRepository, friendshipsRepository, postsRepository)
