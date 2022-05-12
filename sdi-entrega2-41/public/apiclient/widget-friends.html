@@ -7,6 +7,7 @@
             <th>E-mail</th>
             <th>Nombre</th>
             <th>Apellidos</th>
+            <th>Mensajes sin leer</th>
             <th class="col-md-1"></th>
         </tr>
         </thead>
@@ -18,6 +19,7 @@
     window.history.pushState("", "", "/apiclient/client.html?w=friends");
 
     var selectedFriendEmail;
+    var friends;
 
     // C2 - Mostrar la lista de amigos
     function loadFriends() {
@@ -27,65 +29,52 @@
             dataType: 'json',
             headers: {"token": token},
             success: function (response) {
-                    updateFriendsTable(response.friends);
+                friends = response.friends;
+                updateFriendsTable(response.friends);
             },
             error: function (error) {
+                clearInterval(refreshEachSecond); // dejamos de actualizar cada segundo :)
                 $("#main-container").load("widget-login.html");
             }
         });
     }
 
     function updateFriendsTable(friends) {
-        $("#friendsTableBody").empty(); // Vaciamos la tabla
         // Para cada amigo, insertamos un nuevo elemento en la tabla
-        friends["users"].map((user) => {
-            loadMessagesForFriend(user)
-        });
+        friends["users"].map((user) => loadMessagesForFriend(user));
     }
 
-    function friendToRow(user, messages) {
+    function friendToRow(user, unreadMessages, messages) {
         // Preparamos el código HTML de la nueva fila que vamos a insertar en la tabla
-
-        let unreadMessages = 0;
-        // Hecho con un loop pues no es un apartado de la API y decidimos no modificarla.
-        messages.forEach((message) => {
-            unreadMessages += !message.read && message.sender === user.email? 1: 0;
-        });
-
         const friendHasMessages = (user, messages) =>  `
-                <tr id="${user._id}">
+                <tr id="${user.email}">
                     <td>${user.email}</td>
                     <td>${user.name}</td>
                     <td>${user.surname}</td>
-
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        ${unreadMessages==0?
-                        "¡Estás al dia con la conversación!" :
-                        "¡Tienes <b>" + unreadMessages + "</b> mensajes sin leer!"}
+                    <td id="messages-${user.email}">
+                        ${unreadMessages === 0 ?
+                        "¡Estás al día!" :
+                        "¡Tienes <b>" + unreadMessages + "</b> mensajes!"}
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3">
-                        <a className="link-info" onClick="chatWithFriend('${user.email}')">${new Date(messages[messages.length - 1].date).toDateString()} - ${messages[messages.length - 1].text}</a>
+                    <td colspan="4">
+                        <a id="chat_${user.email}" className="link-info" onClick="chatWithFriend('${user.email}')">${new Date(messages[messages.length - 1].date).toDateString()} - ${messages[messages.length - 1].text}</a>
                     </td>
                 </tr>
             `;
         // Lo mismo en caso de que el usuario no tenga mensajes :(
         const friendHasNoMessages = (user) =>  `
-                <tr id="${user._id}">
+                <tr id="${user.email}">
                     <td>${user.email}</td>
                     <td>${user.name}</td>
                     <td>${user.surname}</td>
-                </tr>
-                <tr>
-                    <td colspan="3">
+                    <td id="messages-${user.email}">
                         ¡Empieza una conversación!
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="3">
+                    <td colspan="4">
                         <a className="link-info" onClick="chatWithFriend('${user.email}')">Ir al chat</a>
                     </td>
                 </tr>
@@ -100,7 +89,34 @@
 
     function chatWithFriend(email) {
         selectedFriendEmail = email;
+        clearInterval(refreshEachSecond); // dejamos de actualizar cada segundo :)
         $("#main-container").load("widget-chat.html");
+    }
+
+    function updateFriendsRow(user, unreadMessages, messages) {
+        if (messages.length > 0) // en caso de que haya mensajes intentamos actualizar
+            $("#messages-" + user.email).html(`
+                    <td>
+                        ${unreadMessages === 0 ?
+                        "¡Estás al día!" :
+                        "¡Tienes <b>" + unreadMessages + "</b> mensajes!"}
+                    </td>`
+            );
+    }
+
+    function checkIsForUpdate(user, messages) {
+        var readMessages = document.getElementById("messages-" + user.email);
+
+        // Obtenemos el número de mensajes sin leer
+        let unreadMessages = 0;
+        // Hecho con un loop pues no es un apartado de la API y decidimos no modificarla.
+        messages.forEach((message) => {
+            unreadMessages += !message.read && message.sender === user.email? 1: 0;
+        });
+
+        // Comprobamos si hemos podido obtener el elemento a buscar
+        if (readMessages) updateFriendsRow(readMessages, unreadMessages, messages); // en este caso tenemos que actualizar...
+        else friendToRow(user, unreadMessages, messages);
     }
 
     function loadMessagesForFriend(user) {
@@ -116,18 +132,16 @@
             },
             success: function (response) {
                 // Le damos formato de tabla apropiadamente
-                friendToRow(user, response.messages)
+                checkIsForUpdate(user, response.messages)
             },
             error: function (error) {
                 // VOLVEMOS a la pantalla de inicio de sesión
+                clearInterval(refreshEachSecond); // dejamos de actualizar cada segundo :)
                 $("#main-container").load("widget-login.html");
             }
         });
     }
 
-    // Ejecutamos la función cada segundo :)
-    var refreshEachSecond = window.setInterval(() => {
-        loadFriends(); // recargamos los amigos...
-    }, 1000);
     loadFriends();
+    var refreshEachSecond = window.setInterval(() => loadFriends() , 1000); // Ejecutamos la función cada segundo :)
 </script>

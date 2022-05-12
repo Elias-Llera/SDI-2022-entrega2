@@ -116,7 +116,7 @@
             },
             error: function (error) {
                 // VOLVEMOS a la pantalla de inicio de sesión
-                alert("Ha ocurrido un error :("); // tras haber informado al usuario de que un error ha ocurrido
+                clearInterval(refreshEachSecond);
                 $("#main-container").load("widget-login.html");
             }
         });
@@ -127,6 +127,7 @@
         loadMessagesForChat(selectedFriendEmail); // recargamos los mensajes...
     }, 1000);
 
+
     $("#button-message").click(function () {
         $.ajax({
             url: URLbase + "/messages/insert",
@@ -134,13 +135,15 @@
             dataType: 'json',
             data: {
                 receiver: selectedFriendEmail,
+                text: $("#message").val(),
             },
             headers: {"token": token},
             success: function (response) {
+                console.log("Mensaje: " + $("#message").val() + ". Enviado con éxito!");
                 $("#message").val("");
             },
             error: function (error) {
-                clearInterval(refreshEachSecond); // debemos parar de ejecutar esto constantemente
+                clearInterval(refreshEachSecond);
                 $("#main-container").load("widget-login.html");
             }
         });
