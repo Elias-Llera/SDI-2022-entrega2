@@ -1,3 +1,4 @@
+const {getConnection} = require("./db");
 module.exports = {
 
     mongoClient: null,
@@ -16,7 +17,7 @@ module.exports = {
      */
     getFriendships: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
@@ -36,7 +37,7 @@ module.exports = {
     getFriendshipsPg: async function (filter, options, page) {
         try {
             const limit = 4;
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
@@ -57,7 +58,7 @@ module.exports = {
      */
     findFriendship: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
@@ -74,7 +75,7 @@ module.exports = {
      */
     insertFriendship: async function (friendship) {
         try{
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
@@ -93,7 +94,7 @@ module.exports = {
      */
     deleteFriendship: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);
@@ -112,7 +113,7 @@ module.exports = {
      */
     updateFriendship: async function(newFriendship, filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipCollection = database.collection(collectionName);
@@ -126,7 +127,7 @@ module.exports = {
      */
     resetFriendships: async function (friendships) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'friendships';
             const friendshipsCollection = database.collection(collectionName);

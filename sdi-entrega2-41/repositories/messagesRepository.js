@@ -1,3 +1,4 @@
+const {getConnection} = require("./db");
 module.exports = {
     mongoClient: null,
     app: null,
@@ -9,7 +10,7 @@ module.exports = {
 
     getMessages: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'messages';
             const messagesCollection = database.collection(collectionName);
@@ -21,7 +22,7 @@ module.exports = {
 
     insertMessage: async function (message) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'messages';
             const messagesCollection = database.collection(collectionName);
@@ -33,7 +34,7 @@ module.exports = {
 
     findMessage: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'messages';
             const messagesCollection = database.collection(collectionName);
@@ -45,7 +46,7 @@ module.exports = {
 
     readMessage: async function (filter, options) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'messages';
             const messagesCollection = database.collection(collectionName);
@@ -58,7 +59,7 @@ module.exports = {
   
     resetMessages: async function (messages) {
         try {
-            const client = await this.mongoClient.connect(this.app.get('connectionStrings'));
+            const client = await getConnection(this.mongoClient,this.app.get('connectionStrings'))
             const database = client.db("entrega2");
             const collectionName = 'messages';
             const messagesCollection = database.collection(collectionName);
